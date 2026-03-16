@@ -8,457 +8,171 @@
   <title>NETH FM · Live Dashboard</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:      #0d1117;
-      --surface: #161b22;
-      --surface2:#1c2230;
-      --border:  #21262d;
-      --purple:  #7c3aed;
-      --purple2: #a855f7;
-      --green:   #10b981;
-      --orange:  #f59e0b;
-      --red:     #ef4444;
-      --blue:    #3b82f6;
-      --text:    #f0f6fc;
-      --muted:   #8b949e;
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --bg:#0d1117; --surface:#161b22; --surface2:#1c2230; --border:#21262d;
+      --purple:#7c3aed; --purple2:#a855f7; --green:#10b981; --orange:#f59e0b;
+      --blue:#3b82f6; --text:#f0f6fc; --muted:#8b949e;
+      --sb:env(safe-area-inset-bottom,0px);
     }
+    body { background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; min-height:100vh; padding-bottom:calc(24px + var(--sb)); -webkit-tap-highlight-color:transparent; }
 
-    html { scroll-behavior: smooth; }
+    .sticky-top { position:sticky; top:0; z-index:100; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      min-height: 100vh;
-      padding-bottom: calc(32px + var(--safe-bottom));
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    /* ══ STICKY TOP ══════════════════════════════════════════════════════════ */
-    .sticky-top {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    /* ══ HEADER ══════════════════════════════════════════════════════════════ */
-    .header {
-      background: linear-gradient(135deg, #1a0533 0%, #0d1b4e 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 16px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .header-left h1 {
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: -0.3px;
-      line-height: 1.2;
-      white-space: nowrap;
-    }
-    .header-left h1 span { color: var(--purple2); }
-    .header-left p {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
-    }
-
-    .live-badge {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(16,185,129,0.12);
-      border: 1px solid rgba(16,185,129,0.3);
-      padding: 6px 12px;
-      border-radius: 30px;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--green);
-      letter-spacing: 0.8px;
-    }
-    .live-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: var(--green);
-      animation: blink 1.2s infinite;
-      flex-shrink: 0;
-    }
-    @keyframes blink {
-      0%,100% { opacity:1; transform:scale(1); }
-      50%      { opacity:0.3; transform:scale(1.4); }
-    }
-
-    .refresh-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-    }
-    .refresh-ring { width: 30px; height: 30px; }
-    .refresh-ring svg { transform: rotate(-90deg); width:100%; height:100%; }
+    /* HEADER */
+    .header { background:linear-gradient(135deg,#1a0533 0%,#0d1b4e 100%); border-bottom:1px solid var(--border); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .header-left h1 { font-size:15px; font-weight:800; letter-spacing:-.3px; line-height:1.2; }
+    .header-left h1 span { color:var(--purple2); }
+    .header-left p { font-size:11px; color:var(--muted); margin-top:2px; }
+    .header-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .live-badge { display:flex; align-items:center; gap:6px; background:rgba(16,185,129,.12); border:1px solid rgba(16,185,129,.3); padding:6px 12px; border-radius:30px; font-size:11px; font-weight:700; color:var(--green); letter-spacing:.8px; }
+    .live-dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:blink 1.2s infinite; flex-shrink:0; }
+    @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(1.4)} }
+    .refresh-wrap { display:flex; flex-direction:column; align-items:center; gap:1px; }
+    .refresh-ring { width:28px; height:28px; }
+    .refresh-ring svg { transform:rotate(-90deg); width:100%; height:100%; }
     .refresh-ring circle.track    { fill:none; stroke:var(--border); stroke-width:3; }
-    .refresh-ring circle.progress {
-      fill:none; stroke:var(--purple2); stroke-width:3; stroke-linecap:round;
-      stroke-dasharray: 88; stroke-dashoffset: 88;
-      transition: stroke-dashoffset 1s linear;
-    }
-    .refresh-label { font-size:9px; color:var(--muted); }
+    .refresh-ring circle.progress { fill:none; stroke:var(--purple2); stroke-width:3; stroke-linecap:round; stroke-dasharray:88; stroke-dashoffset:88; transition:stroke-dashoffset 1s linear; }
+    .refresh-sec { font-size:9px; color:var(--muted); }
 
-    /* ══ REGION SELECTOR BAR ════════════════════════════════════════════════ */
-    .selector-bar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 0;
-    }
-    .selector-inner {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding: 2px 16px;
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch;
-    }
-    .selector-inner::-webkit-scrollbar { display: none; }
+    /* DATE CHIPS */
+    .chip-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:8px 0; }
+    .chip-scroll { display:flex; gap:8px; overflow-x:auto; padding:2px 14px; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; }
+    .chip-scroll::-webkit-scrollbar { display:none; }
+    .date-chip { display:flex; flex-direction:column; align-items:flex-start; padding:8px 13px; border-radius:12px; border:1px solid var(--border); background:var(--surface2); cursor:pointer; white-space:nowrap; flex-shrink:0; transition:all .18s; user-select:none; min-width:78px; }
+    .date-chip:active { transform:scale(.95); }
+    .date-chip.active { background:rgba(124,58,237,.2); border-color:var(--purple2); }
+    .chip-today-tag { font-size:8px; font-weight:800; background:var(--green); color:#000; padding:1px 5px; border-radius:4px; margin-bottom:3px; text-transform:uppercase; letter-spacing:.4px; display:inline-block; }
+    .chip-datelbl { font-size:12px; font-weight:700; color:var(--text); line-height:1.2; }
+    .date-chip.active .chip-datelbl { color:var(--purple2); }
+    .chip-cnt { font-size:10px; font-weight:700; color:var(--green); margin-top:2px; }
 
-    .region-chip {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 8px 14px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--surface2);
-      cursor: pointer;
-      white-space: nowrap;
-      flex-shrink: 0;
-      transition: all 0.2s;
-      min-width: 90px;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-    .region-chip:active { transform: scale(0.96); }
-    .region-chip.active {
-      background: rgba(124,58,237,0.2);
-      border-color: var(--purple2);
-    }
-    .region-chip .chip-label {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.2;
-    }
-    .region-chip.active .chip-label { color: var(--purple2); }
-    .region-chip .chip-date {
-      font-size: 10px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-    .region-chip .chip-count {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--green);
-      margin-top: 3px;
-    }
-    .chip-today-badge {
-      display: inline-block;
-      background: var(--green);
-      color: #000;
-      font-size: 8px;
-      font-weight: 800;
-      padding: 1px 5px;
-      border-radius: 4px;
-      margin-bottom: 3px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+    /* REGION PILLS */
+    .region-bar { background:var(--bg); border-bottom:1px solid var(--border); padding:8px 0; }
+    .region-scroll { display:flex; gap:7px; overflow-x:auto; padding:2px 14px; -webkit-overflow-scrolling:touch; }
+    .region-scroll::-webkit-scrollbar { display:none; }
+    .rpill { padding:6px 14px; border-radius:20px; border:1px solid var(--border); background:var(--surface2); font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; white-space:nowrap; flex-shrink:0; transition:all .15s; user-select:none; }
+    .rpill:active { transform:scale(.95); }
+    .rpill.active { background:rgba(16,185,129,.15); border-color:rgba(16,185,129,.4); color:var(--green); }
+    .rpill-cnt { font-size:10px; opacity:.7; margin-left:4px; }
 
-    /* ══ LOCATION BANNER ════════════════════════════════════════════════════ */
-    .loc-banner {
-      background: linear-gradient(90deg, rgba(124,58,237,0.12) 0%, rgba(59,130,246,0.06) 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 6px;
-      font-size: 12px;
-    }
-    .loc-date  { color: var(--text); font-weight: 700; }
-    .loc-place { color: var(--purple2); font-weight: 600; }
-    .loc-time  { color: var(--muted); font-size: 11px; }
+    /* BANNER */
+    .loc-banner { background:linear-gradient(90deg,rgba(124,58,237,.1) 0%,rgba(59,130,246,.05) 100%); border-bottom:1px solid var(--border); padding:9px 14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:4px; font-size:12px; }
+    .loc-left { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .loc-date  { color:var(--text); font-weight:700; }
+    .loc-place { color:var(--purple2); font-weight:600; }
+    .loc-right { font-size:10px; color:var(--muted); }
+    .loc-right strong { color:var(--text); }
 
-    /* ══ ERROR ══════════════════════════════════════════════════════════════ */
-    #error-banner {
-      display: none;
-      margin: 12px 16px 0;
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.3);
-      color: #fca5a5;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-size: 12px;
-    }
+    /* ALERTS */
+    #error-banner, #nodata-banner { display:none; margin:10px 14px 0; padding:10px 14px; border-radius:10px; font-size:12px; line-height:1.5; }
+    #error-banner  { background:rgba(239,68,68,.1);  border:1px solid rgba(239,68,68,.3);  color:#fca5a5; }
+    #nodata-banner { background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3); color:#fcd34d; }
 
-    /* ══ CONTENT ════════════════════════════════════════════════════════════ */
-    .content { padding: 14px 14px 0; }
+    /* CONTENT */
+    .content { padding:12px 12px 0; }
 
-    /* ══ PRIMARY METRIC CARDS (2×2 on mobile) ═══════════════════════════════ */
-    .metrics {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
+    /* PRIMARY CARDS 2x2 mobile */
+    .metrics { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:9px; }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px 13px 12px; position:relative; overflow:hidden; }
+    .card-accent { position:absolute; top:0; left:0; width:100%; height:3px; }
+    .card-label  { font-size:9px; text-transform:uppercase; letter-spacing:1.2px; color:var(--muted); font-weight:700; margin-bottom:7px; line-height:1.3; }
+    .card-value  { font-size:42px; font-weight:900; line-height:1; margin-bottom:5px; transition:opacity .25s; }
+    .card-value.upd { opacity:.3; }
+    .card-sub    { font-size:10px; color:var(--muted); line-height:1.4; }
+    .card-bar    { margin-top:10px; height:4px; background:rgba(255,255,255,.05); border-radius:2px; overflow:hidden; }
+    .card-bar-fill { height:100%; border-radius:2px; transition:width .8s ease; }
 
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px 14px 14px;
-      position: relative;
-      overflow: hidden;
-    }
-    .card-accent {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 3px;
-    }
-    .card-label {
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      color: var(--muted);
-      font-weight: 700;
-      margin-bottom: 8px;
-      line-height: 1.3;
-    }
-    .card-value {
-      font-size: 44px;
-      font-weight: 900;
-      line-height: 1;
-      margin-bottom: 6px;
-      transition: opacity 0.3s;
-    }
-    .card-value.updating { opacity: 0.35; }
-    .card-sub  { font-size: 10px; color: var(--muted); font-weight: 500; line-height: 1.4; }
-    .card-bar  { margin-top: 12px; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
-    .card-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
+    .c-purple .card-value{background:linear-gradient(135deg,#7c3aed,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;color:#7c3aed}
+    .c-purple .card-accent,.c-purple .card-bar-fill{background:linear-gradient(90deg,#7c3aed,#a855f7)}
+    .c-green  .card-value{background:linear-gradient(135deg,#10b981,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;color:#10b981}
+    .c-green  .card-accent,.c-green  .card-bar-fill{background:linear-gradient(90deg,#10b981,#34d399)}
+    .c-orange .card-value{background:linear-gradient(135deg,#f59e0b,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;color:#f59e0b}
+    .c-orange .card-accent,.c-orange .card-bar-fill{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+    .c-blue   .card-value{background:linear-gradient(135deg,#3b82f6,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;color:#3b82f6}
+    .c-blue   .card-accent,.c-blue   .card-bar-fill{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
 
-    .c-purple .card-value { background:linear-gradient(135deg,#7c3aed,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; color:#7c3aed; }
-    .c-purple .card-accent,.c-purple .card-bar-fill { background:linear-gradient(90deg,#7c3aed,#a855f7); }
-    .c-green  .card-value { background:linear-gradient(135deg,#10b981,#34d399); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; color:#10b981; }
-    .c-green  .card-accent,.c-green  .card-bar-fill { background:linear-gradient(90deg,#10b981,#34d399); }
-    .c-orange .card-value { background:linear-gradient(135deg,#f59e0b,#fbbf24); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; color:#f59e0b; }
-    .c-orange .card-accent,.c-orange .card-bar-fill { background:linear-gradient(90deg,#f59e0b,#fbbf24); }
-    .c-blue   .card-value { background:linear-gradient(135deg,#3b82f6,#60a5fa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; color:#3b82f6; }
-    .c-blue   .card-accent,.c-blue   .card-bar-fill { background:linear-gradient(90deg,#3b82f6,#60a5fa); }
+    /* MINI CARDS 2x2 */
+    .secondary { display:grid; grid-template-columns:1fr 1fr; gap:9px; margin-bottom:12px; }
+    .mini-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:13px 12px; }
+    .mini-label{ font-size:9px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700; margin-bottom:5px; line-height:1.3; }
+    .mini-value{ font-size:26px; font-weight:900; color:var(--text); }
+    .mini-sub  { font-size:10px; color:var(--muted); margin-top:2px; }
 
-    /* ══ SECONDARY MINI CARDS (2×2 on mobile) ═══════════════════════════════ */
-    .secondary {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .mini-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 12px;
-    }
-    .mini-label { font-size: 9px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700; margin-bottom:6px; line-height:1.3; }
-    .mini-value { font-size: 26px; font-weight:900; color:var(--text); }
-    .mini-sub   { font-size: 10px; color:var(--muted); margin-top:3px; }
+    /* SECTIONS */
+    .section { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:12px; }
+    .section-hdr { padding:13px 14px 11px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .section-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; }
+    .section-badge { font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px; background:rgba(124,58,237,.2); color:var(--purple2); }
 
-    /* ══ TEAM SECTION ═══════════════════════════════════════════════════════ */
-    .section {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      margin-bottom: 12px;
-    }
-    .section-header {
-      padding: 14px 16px 12px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .section-title { font-size: 12px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; }
-    .section-badge {
-      font-size: 10px; font-weight:700;
-      padding: 3px 9px; border-radius: 20px;
-      background: rgba(124,58,237,0.2); color:var(--purple2);
-    }
+    /* TEAM mobile cards */
+    .team-cards { padding:8px; display:flex; flex-direction:column; gap:8px; }
+    .team-card  { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:12px 13px; }
+    .team-card-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+    .team-card-name{ font-size:13px; font-weight:700; }
+    .rate-pill { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; background:rgba(16,185,129,.15); color:var(--green); }
+    .team-stats{ display:grid; grid-template-columns:repeat(5,1fr); gap:4px; }
+    .ts-val{ font-size:15px; font-weight:800; color:var(--text); text-align:center; }
+    .ts-lbl{ font-size:8px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; text-align:center; margin-top:1px; }
 
-    /* Mobile team: card stack */
-    .team-cards { padding: 8px; display:flex; flex-direction:column; gap:8px; }
-    .team-card {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 14px;
+    /* TEAM desktop table */
+    .team-table-wrap{ display:none; overflow-x:auto; }
+    .team-table{ width:100%; border-collapse:collapse; font-size:13px; }
+    .team-table th{ padding:11px 14px; text-align:center; font-size:9px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700; background:rgba(255,255,255,.02); border-bottom:1px solid var(--border); }
+    .team-table th:first-child{ text-align:left; }
+    .team-table td{ padding:12px 14px; text-align:center; border-bottom:1px solid var(--border); color:var(--muted); font-weight:500; }
+    .team-table td:first-child{ text-align:left; color:var(--text); font-weight:700; }
+    .team-table tr:last-child td{ border-bottom:none; }
+    .team-table tr:hover td{ background:rgba(255,255,255,.02); }
+
+    /* LEADS */
+    .leads-scroll{ max-height:420px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+    .leads-scroll::-webkit-scrollbar{ width:3px; }
+    .leads-scroll::-webkit-scrollbar-thumb{ background:var(--border); border-radius:2px; }
+    .lead-item{ display:flex; align-items:center; justify-content:space-between; padding:11px 14px; border-bottom:1px solid var(--border); gap:10px; animation:slideIn .3s ease; }
+    .lead-item:last-child{ border-bottom:none; }
+    @keyframes slideIn{ from{opacity:0;transform:translateX(-5px)} to{opacity:1;transform:none} }
+    .lead-info{ flex:1; min-width:0; }
+    .lead-name{ font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .lead-meta{ font-size:11px; color:var(--muted); margin-top:2px; line-height:1.4; }
+    .lead-tag { font-size:9px; font-weight:700; padding:4px 9px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
+    .tag-up  { background:rgba(239,68,68,.15);  color:#fca5a5; }
+    .tag-new { background:rgba(16,185,129,.15); color:#6ee7b7; }
+
+    .empty{ text-align:center; padding:32px 16px; color:var(--muted); }
+    .empty .ico{ font-size:32px; margin-bottom:8px; opacity:.2; }
+    .empty p{ font-size:12px; }
+
+    /* DESKTOP >= 640px */
+    @media(min-width:640px){
+      .header{ padding:16px 24px; }
+      .header-left h1{ font-size:20px; }
+      .chip-scroll,.region-scroll{ padding:2px 24px; }
+      .loc-banner{ padding:9px 24px; font-size:13px; }
+      #error-banner,#nodata-banner{ margin:14px 24px 0; }
+      .content{ padding:18px 24px 0; max-width:1400px; margin:0 auto; }
+      .metrics  { grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:14px; }
+      .secondary{ grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px; }
+      .card{ padding:20px 18px 16px; }
+      .card-value{ font-size:52px; }
+      .card-label{ font-size:10px; }
+      .mini-value{ font-size:30px; }
+      .panels{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+      .team-cards{ display:none; }
+      .team-table-wrap{ display:block; }
     }
-    .team-card-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-    .team-card-name { font-size:13px; font-weight:700; }
-    .rate-pill {
-      display:inline-block;
-      padding:3px 10px; border-radius:20px;
-      font-size:11px; font-weight:700;
-      background:rgba(16,185,129,0.15); color:var(--green);
-    }
-    .team-card-stats {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 6px;
-    }
-    .team-stat { text-align:center; }
-    .team-stat-val  { font-size:16px; font-weight:800; color:var(--text); }
-    .team-stat-lbl  { font-size:8px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-top:1px; }
-
-    /* Desktop team: table (hidden on mobile) */
-    .team-table-wrap { display:none; overflow-x:auto; }
-    .team-table { width:100%; border-collapse:collapse; font-size:13px; }
-    .team-table th {
-      padding:11px 14px; text-align:center;
-      font-size:9px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700;
-      background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border);
-    }
-    .team-table th:first-child { text-align:left; }
-    .team-table td {
-      padding:13px 14px; text-align:center;
-      border-bottom:1px solid var(--border);
-      color:var(--muted); font-weight:500;
-    }
-    .team-table td:first-child { text-align:left; color:var(--text); font-weight:700; }
-    .team-table tr:last-child td { border-bottom:none; }
-    .team-table tr:hover td { background:rgba(255,255,255,0.02); }
-
-    /* ══ LEADS LIST ═════════════════════════════════════════════════════════ */
-    .leads-scroll {
-      max-height: 400px;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    .leads-scroll::-webkit-scrollbar { width:3px; }
-    .leads-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
-
-    .lead-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-      gap: 10px;
-      animation: slideIn 0.35s ease;
-    }
-    .lead-item:last-child { border-bottom:none; }
-    @keyframes slideIn { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:none} }
-
-    .lead-info { flex:1; min-width:0; }
-    .lead-name { font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .lead-meta { font-size:11px; color:var(--muted); margin-top:2px; line-height:1.4; }
-    .lead-tag {
-      font-size:9px; font-weight:700;
-      padding:4px 9px; border-radius:20px;
-      white-space:nowrap; flex-shrink:0;
-    }
-    .tag-upgrade { background:rgba(239,68,68,0.15); color:#fca5a5; }
-    .tag-new     { background:rgba(16,185,129,0.15); color:#6ee7b7; }
-
-    /* ══ EMPTY + ERROR ═══════════════════════════════════════════════════════ */
-    .empty {
-      text-align:center; padding:36px 20px; color:var(--muted);
-    }
-    .empty .ico { font-size:36px; margin-bottom:10px; opacity:0.25; }
-    .empty p    { font-size:12px; }
-
-    /* ══ NO DATA OVERLAY ════════════════════════════════════════════════════ */
-    #no-data-banner {
-      display:none;
-      margin:14px 14px 0;
-      background:rgba(245,158,11,0.1);
-      border:1px solid rgba(245,158,11,0.3);
-      color:#fcd34d;
-      padding:10px 14px;
-      border-radius:10px;
-      font-size:12px;
-    }
-
-    /* ══ LOADING SKELETON ═══════════════════════════════════════════════════ */
-    .skel {
-      background:linear-gradient(90deg,var(--surface) 25%,rgba(255,255,255,0.04) 50%,var(--surface) 75%);
-      background-size:200% 100%;
-      animation:skel 1.4s infinite;
-      border-radius:8px;
-    }
-    @keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
-
-    /* ══ DESKTOP OVERRIDES (≥ 640px) ════════════════════════════════════════ */
-    @media (min-width: 640px) {
-      .header { padding:18px 24px; }
-      .header-left h1 { font-size:20px; }
-      .selector-inner { padding:2px 24px; }
-
-      .content { padding:20px 24px 0; max-width:1400px; margin:0 auto; }
-
-      .metrics   { grid-template-columns: repeat(4,1fr); gap:16px; margin-bottom:16px; }
-      .secondary { grid-template-columns: repeat(4,1fr); gap:16px; margin-bottom:20px; }
-
-      .card { padding:22px 20px 18px; }
-      .card-label { font-size:10px; }
-      .card-value { font-size:52px; }
-      .mini-value { font-size:30px; }
-
-      .team-cards { display:none; }
-      .team-table-wrap { display:block; }
-
-      .panels { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-
-      .loc-banner { padding:10px 24px; font-size:13px; }
-      #error-banner { margin:16px 24px 0; }
-      #no-data-banner { margin:16px 24px 0; }
-    }
-
-    @media (min-width: 900px) {
-      .header-left h1 { font-size:24px; }
-    }
+    @media(min-width:900px){ .header-left h1{ font-size:24px; } }
   </style>
 </head>
 <body>
 
-<!-- ══ STICKY HEADER + SELECTOR ══════════════════════════════════════════════ -->
 <div class="sticky-top">
-
   <header class="header">
     <div class="header-left">
       <h1>SLT-MOBITEL — <span>NETH FM</span></h1>
       <p>Campaign Live Dashboard</p>
     </div>
     <div class="header-right">
-      <div class="live-badge">
-        <div class="live-dot"></div>
-        LIVE
-      </div>
+      <div class="live-badge"><div class="live-dot"></div>LIVE</div>
       <div class="refresh-wrap">
         <div class="refresh-ring">
           <svg viewBox="0 0 32 32">
@@ -466,84 +180,81 @@
             <circle class="progress" cx="16" cy="16" r="14" id="ring"/>
           </svg>
         </div>
-        <div class="refresh-label" id="countdown-label">10s</div>
+        <div class="refresh-sec" id="cd-lbl">10s</div>
       </div>
     </div>
   </header>
 
-  <!-- Region / Day selector -->
-  <div class="selector-bar">
-    <div class="selector-inner" id="region-chips">
-      <div class="region-chip active">
-        <div class="chip-label skel" style="width:70px;height:12px;"></div>
-        <div class="chip-date skel" style="width:50px;height:9px;margin-top:4px;"></div>
-      </div>
+  <div class="chip-bar">
+    <div class="chip-scroll" id="date-chips">
+      <div class="date-chip active"><div class="chip-datelbl">Loading…</div></div>
     </div>
   </div>
 
-  <!-- Location + date banner -->
-  <div class="loc-banner">
-    <div class="loc-date" id="loc-date">—</div>
-    <div class="loc-place" id="loc-place">📍 —</div>
-    <div class="loc-time">Updated: <strong id="last-time">—</strong></div>
+  <div class="region-bar">
+    <div class="region-scroll" id="region-pills">
+      <div class="rpill active">All Regions</div>
+    </div>
   </div>
 
-</div><!-- /sticky-top -->
+  <div class="loc-banner">
+    <div class="loc-left">
+      <span class="loc-date"  id="loc-date">—</span>
+      <span class="loc-place" id="loc-place">📍 —</span>
+    </div>
+    <div class="loc-right">Updated: <strong id="last-time">—</strong></div>
+  </div>
+</div>
 
-<!-- Error / No-data banners -->
 <div id="error-banner"></div>
-<div id="no-data-banner">⚠ No leads recorded for this region / date yet.</div>
+<div id="nodata-banner">No leads recorded for this selection yet.</div>
 
-<!-- ══ MAIN CONTENT ══════════════════════════════════════════════════════════ -->
 <div class="content">
-
-  <!-- Primary Metrics -->
   <div class="metrics">
     <div class="card c-purple">
       <div class="card-accent"></div>
       <div class="card-label">Total Leads</div>
       <div class="card-value" id="m-total">—</div>
-      <div class="card-sub">Collected today</div>
+      <div class="card-sub"  id="s-total">recorded today</div>
       <div class="card-bar"><div class="card-bar-fill" style="width:100%"></div></div>
     </div>
     <div class="card c-green">
       <div class="card-accent"></div>
       <div class="card-label">Interested</div>
-      <div class="card-value" id="m-interested">—</div>
-      <div class="card-sub" id="s-conv">— conversion</div>
+      <div class="card-value" id="m-int">—</div>
+      <div class="card-sub"  id="s-conv">—% conversion</div>
       <div class="card-bar"><div class="card-bar-fill" id="b-int" style="width:0%"></div></div>
     </div>
     <div class="card c-orange">
       <div class="card-accent"></div>
       <div class="card-label">Existing Cust.</div>
-      <div class="card-value" id="m-existing">—</div>
-      <div class="card-sub" id="s-exist">— of total</div>
+      <div class="card-value" id="m-exist">—</div>
+      <div class="card-sub"  id="s-exist">—% of total</div>
       <div class="card-bar"><div class="card-bar-fill" id="b-exist" style="width:0%"></div></div>
     </div>
     <div class="card c-blue">
       <div class="card-accent"></div>
       <div class="card-label">New Prospects</div>
       <div class="card-value" id="m-new">—</div>
-      <div class="card-sub" id="s-new">— of total</div>
+      <div class="card-sub"  id="s-new">—% of total</div>
       <div class="card-bar"><div class="card-bar-fill" id="b-new" style="width:0%"></div></div>
     </div>
   </div>
 
-  <!-- Secondary Mini Cards -->
   <div class="secondary">
     <div class="mini-card">
       <div class="mini-label">⬆ Upgrades</div>
-      <div class="mini-value" id="m-upgrade">—</div>
+      <div class="mini-value" id="m-up">—</div>
       <div class="mini-sub">Pkg upgrade interest</div>
     </div>
     <div class="mini-card">
       <div class="mini-label">✨ New Service</div>
-      <div class="mini-value" id="m-newserv">—</div>
+      <div class="mini-value" id="m-ns">—</div>
       <div class="mini-sub">New sign-up interest</div>
     </div>
     <div class="mini-card">
       <div class="mini-label">⏸ Not Interested</div>
-      <div class="mini-value" id="m-notint">—</div>
+      <div class="mini-value" id="m-ni">—</div>
       <div class="mini-sub">No interest</div>
     </div>
     <div class="mini-card">
@@ -553,396 +264,284 @@
     </div>
   </div>
 
-  <!-- Desktop: side-by-side panels -->
   <div class="panels">
-
-    <!-- Team Performance -->
     <div class="section">
-      <div class="section-header">
+      <div class="section-hdr">
         <div class="section-title">👥 Team Performance</div>
-        <div class="section-badge" id="team-count">0 teams</div>
+        <div class="section-badge" id="team-cnt">—</div>
       </div>
-
-      <!-- Mobile cards -->
       <div class="team-cards" id="team-cards">
         <div class="empty"><div class="ico">📊</div><p>Loading…</p></div>
       </div>
-
-      <!-- Desktop table -->
       <div class="team-table-wrap">
         <table class="team-table">
-          <thead>
-            <tr>
-              <th>Team</th><th>Total</th><th>Interested</th>
-              <th>Existing</th><th>Upgrades</th><th>New</th><th>Rate</th>
-            </tr>
-          </thead>
+          <thead><tr>
+            <th>Team</th><th>Total</th><th>Interested</th>
+            <th>Existing</th><th>Upgrades</th><th>New</th><th>Rate</th>
+          </tr></thead>
           <tbody id="team-body">
-            <tr><td colspan="7"><div class="empty"><div class="ico">📊</div><p>Loading…</p></div></td></tr>
+            <tr><td colspan="7"><div class="empty"><p>Loading…</p></div></td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Interested Leads -->
     <div class="section">
-      <div class="section-header">
+      <div class="section-hdr">
         <div class="section-title">🌟 Interested Leads</div>
-        <div class="section-badge" id="leads-count">0</div>
+        <div class="section-badge" id="leads-cnt">0</div>
       </div>
       <div class="leads-scroll">
         <div id="leads-list"><div class="empty"><div class="ico">📋</div><p>Loading…</p></div></div>
       </div>
     </div>
+  </div>
+</div>
 
-  </div><!-- /panels -->
-
-</div><!-- /content -->
-
-<!-- ══ SCRIPT ════════════════════════════════════════════════════════════════ -->
 <script>
-/* ─── CONFIG ─────────────────────────────────────────────────────────────── */
-const SPREADSHEET_ID  = '1UDRajg0RIUsOTCpkHyQF4LIh5XAno0kXvMJaKVwol20';
-const SHEET_NAME      = 'Form responses 1';
-const TIMEZONE        = 'Asia/Colombo';
-const REFRESH_SECONDS = 10;
+const SPREADSHEET_ID = '1UDRajg0RIUsOTCpkHyQF4LIh5XAno0kXvMJaKVwol20';
+const SHEET_NAME     = 'Form responses 1';
+const TIMEZONE       = 'Asia/Colombo';
+const REFRESH_SEC    = 10;
+const COL = { TIMESTAMP:0,REGION:1,IS_CUSTOMER:2,UPGRADE_INTEREST:3,NEW_SERVICE_INTEREST:4,NAME:5,NEAREST_TOWN:6,CONTACT:7,TEAM_NUMBER:8,REMARKS:9 };
 
-const COL = {
-  TIMESTAMP: 0, REGION: 1, IS_CUSTOMER: 2,
-  UPGRADE_INTEREST: 3, NEW_SERVICE_INTEREST: 4,
-  NAME: 5, NEAREST_TOWN: 6, CONTACT: 7, TEAM_NUMBER: 8, REMARKS: 9
-};
+let allRows=[], selectedDate=null, selectedReg='all', countdown=REFRESH_SEC;
+const CIRCUM = 2*Math.PI*14;
 
-/* ─── STATE ──────────────────────────────────────────────────────────────── */
-let allRows        = [];   // all parsed rows from sheet
-let selectedRegion = null; // currently selected region string (null = today)
-let countdown      = REFRESH_SECONDS;
-const CIRCUM       = 2 * Math.PI * 14;
+/* ── UTILS ── */
+function todayStr(){ return new Date().toLocaleDateString('sv-SE',{timeZone:TIMEZONE}); }
 
-/* ─── UTILS ──────────────────────────────────────────────────────────────── */
-function todayStr() {
-  return new Date().toLocaleDateString('sv-SE', { timeZone: TIMEZONE });
-}
-function toDateStr(d) {
-  return d instanceof Date && !isNaN(d)
-    ? d.toLocaleDateString('sv-SE', { timeZone: TIMEZONE })
-    : null;
-}
-function fmtTime(d) {
-  return d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit', timeZone: TIMEZONE });
-}
-function fmtDateLong(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
-}
-function fmtDateShort(dateStr) {
-  const d = new Date(dateStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
-}
-function normalizeYN(v) {
-  if (!v) return 'Unknown';
-  const s = v.toString().toLowerCase();
-  if (s.includes('yes') || s === 'y') return 'Yes';
-  if (s.includes('no')  || s === 'n') return 'No';
-  return 'Unknown';
-}
-function cleanTeam(v) {
-  if (!v) return 'Unknown';
-  let s = v.toString().trim();
-  s = s.replace(/Team\s*N0\s*/i, 'Team No ').replace(/Team\s*No\s*/i, 'Team No ');
-  return s.charAt(0).toUpperCase() + s.slice(1);
-}
-function cleanTown(v) {
-  if (!v) return '—';
-  return v.toString().trim().split(' ')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-}
-function pct(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.style.width = Math.min(100, Math.max(0, val)).toFixed(1) + '%';
+// Parse "3/14/2026 15:14:48" as Colombo wall-clock → extract date string directly
+function parseTimestamp(raw){
+  if(!raw) return null;
+  const m = raw.toString().trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})/);
+  if(!m) return null;
+  const [,mo,d,y,h,min,s]=m.map(Number);
+  const dateStr=`${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  const timestamp=new Date(y,mo-1,d,h,min,s); // local, used for sort only
+  return {dateStr,timestamp};
 }
 
-/* ─── FETCH ──────────────────────────────────────────────────────────────── */
-async function fetchSheetData() {
-  const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&_=${Date.now()}`;
-  const res  = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const text = await res.text();
-  const json = JSON.parse(text.replace(/^[^{]*/, '').replace(/\);?\s*$/, ''));
-  if (!json.table || !json.table.rows) return [];
+function fmtShort(ds){ const[y,m,d]=ds.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function fmtLong(ds) { const[y,m,d]=ds.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('en-US',{weekday:'long',day:'2-digit',month:'long',year:'numeric'}); }
+function fmtTime(d)  { return d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:TIMEZONE}); }
+function yn(v){ if(!v)return'Unknown'; const s=v.toString().toLowerCase(); if(s.includes('yes')||s==='y')return'Yes'; if(s.includes('no')||s==='n')return'No'; return'Unknown'; }
+function cleanTeam(v){ if(!v)return'Unknown'; let s=v.toString().trim().replace(/Team\s*N0\s*/i,'Team No ').replace(/Team\s*No\s*/i,'Team No '); return s.charAt(0).toUpperCase()+s.slice(1); }
+function cleanTown(v){ if(!v)return'—'; return v.toString().trim().split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' '); }
+function set(id,v){ const e=document.getElementById(id); if(e)e.textContent=v; }
+function pct(id,v){ const e=document.getElementById(id); if(e)e.style.width=Math.min(100,Math.max(0,v)).toFixed(1)+'%'; }
+function empty(ico,msg){ return `<div class="empty"><div class="ico">${ico}</div><p>${msg}</p></div>`; }
 
-  const cols = json.table.cols;
-  return json.table.rows.map(row =>
-    row.c.map((cell, i) => {
-      if (!cell) return '';
-      if (cols[i] && cols[i].type === 'datetime' && cell.v) {
-        const m = cell.v.match(/Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/);
-        if (m) return new Date(+m[1], +m[2], +m[3], +m[4], +m[5], +m[6]);
-      }
-      return cell.v !== undefined ? cell.v : (cell.f || '');
-    })
-  );
+/* ── CSV PARSER — handles quoted fields ── */
+function parseCSV(text){
+  const rows=[]; let row=[],field='',inQ=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i],nx=text[i+1];
+    if(inQ){ if(ch==='"'&&nx==='"'){field+='"';i++;} else if(ch==='"')inQ=false; else field+=ch; }
+    else{
+      if(ch==='"')inQ=true;
+      else if(ch===','){row.push(field);field='';}
+      else if(ch==='\r'&&nx==='\n'){row.push(field);rows.push(row);row=[];field='';i++;}
+      else if(ch==='\n'||ch==='\r'){row.push(field);rows.push(row);row=[];field='';}
+      else field+=ch;
+    }
+  }
+  if(field||row.length){row.push(field);rows.push(row);}
+  return rows;
 }
 
-/* ─── PARSE ROW ──────────────────────────────────────────────────────────── */
-function parseRow(row) {
-  const ts = row[COL.TIMESTAMP];
-  let timestamp;
-  if (ts instanceof Date)           timestamp = ts;
-  else if (typeof ts === 'string' && ts) timestamp = new Date(ts);
-  else return null;
-  if (isNaN(timestamp.getTime())) return null;
+/* ── FETCH via CSV export — bypasses ALL sheet filters ── */
+async function fetchSheet(){
+  const url=`https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent(SHEET_NAME)}&_=${Date.now()}`;
+  const res=await fetch(url);
+  if(!res.ok) throw new Error(`HTTP ${res.status} — share the sheet as "Anyone with link can view"`);
+  const text=await res.text();
+  return parseCSV(text).slice(1); // drop header
+}
 
+/* ── PARSE ROW ── */
+function parseRow(row){
+  const ts=parseTimestamp(row[COL.TIMESTAMP]);
+  if(!ts) return null;
   return {
-    timestamp,
-    dateStr:            toDateStr(timestamp),
-    region:             (row[COL.REGION] || '').toString().trim() || 'Not specified',
-    team:               cleanTeam(row[COL.TEAM_NUMBER]),
-    town:               cleanTown(row[COL.NEAREST_TOWN]),
-    isCustomer:         normalizeYN(row[COL.IS_CUSTOMER]),
-    upgradeInterest:    normalizeYN(row[COL.UPGRADE_INTEREST]),
-    newServiceInterest: normalizeYN(row[COL.NEW_SERVICE_INTEREST]),
-    name:    (row[COL.NAME]    || '').toString().trim() || 'Not provided',
-    contact: (row[COL.CONTACT] || '').toString().trim() || 'Not provided',
-    remarks: (row[COL.REMARKS] || '').toString().trim(),
+    timestamp:ts.timestamp, dateStr:ts.dateStr,
+    region:  (row[COL.REGION]||'').trim()||'Not specified',
+    team:    cleanTeam(row[COL.TEAM_NUMBER]),
+    town:    cleanTown(row[COL.NEAREST_TOWN]),
+    isCustomer:         yn(row[COL.IS_CUSTOMER]),
+    upgradeInterest:    yn(row[COL.UPGRADE_INTEREST]),
+    newServiceInterest: yn(row[COL.NEW_SERVICE_INTEREST]),
+    name:   (row[COL.NAME]   ||'').trim()||'Not provided',
+    contact:(row[COL.CONTACT]||'').trim()||'Not provided',
+    remarks:(row[COL.REMARKS]||'').trim(),
   };
 }
 
-/* ─── BUILD REGION→DATE MAP ──────────────────────────────────────────────── */
-// Returns array of { region, dateStr, count } sorted newest first
-function buildRegionList(rows) {
-  const map = {}; // key = "region|||dateStr"
-  rows.forEach(r => {
-    if (!r || !r.dateStr || r.region === 'Not specified') return;
-    const key = r.region + '|||' + r.dateStr;
-    if (!map[key]) map[key] = { region: r.region, dateStr: r.dateStr, count: 0 };
-    map[key].count++;
-  });
-  return Object.values(map).sort((a, b) => b.dateStr.localeCompare(a.dateStr));
+/* ── MAPS ── */
+function buildDateMap(rows){ const m={}; rows.forEach(r=>{if(r?.dateStr)m[r.dateStr]=(m[r.dateStr]||0)+1;}); return m; }
+function buildRegMap(rows,ds){ const m={}; rows.filter(r=>r?.dateStr===ds).forEach(r=>{m[r.region]=(m[r.region]||0)+1;}); return m; }
+function detectLocation(rm){
+  const e=Object.entries(rm).sort((a,b)=>b[1]-a[1]);
+  if(!e.length) return'Location Not Available';
+  if(e.length===1) return e[0][0];
+  const top70=e.filter(([,c])=>c>=e[0][1]*0.7);
+  if(top70.length>2) return`Multiple Regions (${top70.slice(0,2).map(x=>x[0]).join(', ')}+)`;
+  if(top70.length===2) return top70.map(x=>x[0]).join(' & ');
+  return e[0][0];
 }
 
-/* ─── RENDER CHIPS ───────────────────────────────────────────────────────── */
-function renderChips(regionList) {
-  const today  = todayStr();
-  const container = document.getElementById('region-chips');
+/* ── RENDER DATE CHIPS ── */
+function renderDateChips(dm){
+  const today=todayStr(), dates=Object.keys(dm).sort().reverse();
+  if(!selectedDate||!dm[selectedDate]) selectedDate=dates.includes(today)?today:(dates[0]??today);
+  document.getElementById('date-chips').innerHTML=dates.map(ds=>`
+    <div class="date-chip${ds===selectedDate?' active':''}" onclick="pickDate('${ds}')">
+      ${ds===today?'<span class="chip-today-tag">TODAY</span>':''}
+      <div class="chip-datelbl">${fmtShort(ds)}</div>
+      <div class="chip-cnt">${dm[ds]} leads</div>
+    </div>`).join('');
+  const el=document.querySelector('.date-chip.active');
+  if(el) el.scrollIntoView({inline:'center',behavior:'smooth'});
+}
 
-  // Determine default selection: prefer today's region, else newest
-  if (selectedRegion === null) {
-    const todayEntry = regionList.find(e => e.dateStr === today);
-    selectedRegion = todayEntry ? todayEntry.region + '|||' + todayEntry.dateStr
-                                : (regionList[0] ? regionList[0].region + '|||' + regionList[0].dateStr : null);
+/* ── RENDER REGION PILLS ── */
+function renderRegionPills(rm){
+  const total=Object.values(rm).reduce((a,b)=>a+b,0);
+  const sorted=Object.entries(rm).sort((a,b)=>b[1]-a[1]);
+  if(selectedReg!=='all'&&!rm[selectedReg]) selectedReg='all';
+  const allPill=`<div class="rpill${selectedReg==='all'?' active':''}" onclick="pickReg('all')">All Regions <span class="rpill-cnt">${total}</span></div>`;
+  const pills=sorted.map(([reg,cnt])=>{
+    const safe=reg.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return `<div class="rpill${selectedReg===reg?' active':''}" onclick="pickReg('${safe}')">${reg} <span class="rpill-cnt">${cnt}</span></div>`;
+  }).join('');
+  document.getElementById('region-pills').innerHTML=allPill+pills;
+}
+
+/* ── PICKERS ── */
+function pickDate(ds){ selectedDate=ds; selectedReg='all'; redraw(); }
+function pickReg(r)  { selectedReg=r;               redraw(); }
+
+/* ── REDRAW ── */
+function redraw(){
+  const dm=buildDateMap(allRows);
+  renderDateChips(dm);
+  const rm=buildRegMap(allRows,selectedDate);
+  renderRegionPills(rm);
+  renderDashboard(rm);
+}
+
+/* ── DASHBOARD ── */
+function renderDashboard(rm){
+  const rows=allRows.filter(r=>{
+    if(!r||r.dateStr!==selectedDate) return false;
+    if(selectedReg!=='all'&&r.region!==selectedReg) return false;
+    return true;
+  });
+
+  document.getElementById('nodata-banner').style.display=rows.length?'none':'block';
+  if(!rows.length){
+    ['m-total','m-int','m-exist','m-new','m-up','m-ns','m-ni','m-rate'].forEach(id=>set(id,'—'));
+    set('leads-cnt',0); set('team-cnt','0 teams');
+    document.getElementById('leads-list').innerHTML=empty('📋','No data for this selection');
+    document.getElementById('team-cards').innerHTML=empty('👥','No data');
+    document.getElementById('team-body').innerHTML=`<tr><td colspan="7">${empty('👥','No data')}</td></tr>`;
+    return;
   }
 
-  container.innerHTML = regionList.map(entry => {
-    const key    = entry.region + '|||' + entry.dateStr;
-    const active = key === selectedRegion ? 'active' : '';
-    const isToday = entry.dateStr === today;
-    return `
-      <div class="region-chip ${active}" data-key="${key}" onclick="selectRegion('${key}')">
-        ${isToday ? '<span class="chip-today-badge">TODAY</span>' : ''}
-        <div class="chip-label">${entry.region}</div>
-        <div class="chip-date">${fmtDateShort(entry.dateStr)}</div>
-        <div class="chip-count">${entry.count} leads</div>
-      </div>`;
-  }).join('');
-
-  // Scroll active chip into view
-  const activeEl = container.querySelector('.active');
-  if (activeEl) activeEl.scrollIntoView({ inline:'center', behavior:'smooth' });
-}
-
-function selectRegion(key) {
-  selectedRegion = key;
-  renderChips(buildRegionList(allRows)); // re-render chips
-  renderDashboard();
-}
-
-/* ─── RENDER DASHBOARD ───────────────────────────────────────────────────── */
-function renderDashboard() {
-  if (!selectedRegion) { showNoData(); return; }
-
-  const [region, dateStr] = selectedRegion.split('|||');
-  const rows = allRows.filter(r => r && r.region === region && r.dateStr === dateStr);
-
-  if (!rows.length) { showNoData(); return; }
-  document.getElementById('no-data-banner').style.display = 'none';
-
-  // Counts
-  let existing=0, nonCust=0, upgradeInt=0, newServInt=0, totalInt=0, notInt=0;
-  const teams = {};
-
-  rows.forEach(r => {
-    if (r.isCustomer === 'Yes') existing++;
-    else if (r.isCustomer === 'No') nonCust++;
-
-    let interested = false;
-    if (r.isCustomer==='Yes' && r.upgradeInterest==='Yes')    { upgradeInt++; interested=true; }
-    if (r.isCustomer==='No'  && r.newServiceInterest==='Yes') { newServInt++; interested=true; }
-    if (interested) totalInt++; else notInt++;
-
-    if (!teams[r.team]) teams[r.team] = {count:0,interested:0,existing:0,upgrade:0,newService:0};
+  let existing=0,nonCust=0,upInt=0,nsInt=0,totalInt=0,notInt=0;
+  const teams={};
+  rows.forEach(r=>{
+    if(r.isCustomer==='Yes')existing++; else if(r.isCustomer==='No')nonCust++;
+    let interested=false;
+    if(r.isCustomer==='Yes'&&r.upgradeInterest==='Yes')   {upInt++;interested=true;}
+    if(r.isCustomer==='No' &&r.newServiceInterest==='Yes'){nsInt++;interested=true;}
+    if(interested)totalInt++; else notInt++;
+    if(!teams[r.team])teams[r.team]={count:0,interested:0,existing:0,upgrade:0,newService:0};
     teams[r.team].count++;
-    if (interested)              teams[r.team].interested++;
-    if (r.isCustomer==='Yes')    teams[r.team].existing++;
-    if (r.upgradeInterest==='Yes')    teams[r.team].upgrade++;
-    if (r.newServiceInterest==='Yes') teams[r.team].newService++;
+    if(interested)             teams[r.team].interested++;
+    if(r.isCustomer==='Yes')   teams[r.team].existing++;
+    if(r.upgradeInterest==='Yes')    teams[r.team].upgrade++;
+    if(r.newServiceInterest==='Yes') teams[r.team].newService++;
   });
 
-  const total    = rows.length;
-  const convRate = total > 0 ? ((totalInt / total) * 100).toFixed(1) : '0.0';
+  const total=rows.length, convRate=total>0?((totalInt/total)*100).toFixed(1):'0.0';
+  const location=selectedReg==='all'?detectLocation(rm):selectedReg;
+  const isToday=selectedDate===todayStr();
 
-  // Banner
-  document.getElementById('loc-date').textContent  = fmtDateLong(dateStr);
-  document.getElementById('loc-place').textContent = '📍 ' + region;
-  document.getElementById('last-time').textContent = fmtTime(new Date());
+  set('loc-date',  fmtLong(selectedDate));
+  set('loc-place', '📍 '+location);
+  set('last-time', fmtTime(new Date()));
 
-  // Primary cards
-  animNum('m-total',     total);
-  animNum('m-interested', totalInt);
-  animNum('m-existing',   existing);
-  animNum('m-new',        nonCust);
-
+  animNum('m-total',total); animNum('m-int',totalInt); animNum('m-exist',existing); animNum('m-new',nonCust);
+  set('s-total',isToday?'recorded today':'recorded '+fmtShort(selectedDate));
+  set('s-conv', convRate+'% conversion');
+  set('s-exist',`${total>0?((existing/total)*100).toFixed(1):'0.0'}% of total`);
+  set('s-new',  `${total>0?((nonCust/total)*100).toFixed(1):'0.0'}% of total`);
   pct('b-int',  total>0?(totalInt/total*100):0);
   pct('b-exist',total>0?(existing/total*100):0);
   pct('b-new',  total>0?(nonCust/total*100):0);
+  set('m-up',upInt); set('m-ns',nsInt); set('m-ni',notInt); set('m-rate',convRate+'%');
 
-  set('s-conv',  `${convRate}% conversion`);
-  set('s-exist', `${total>0?((existing/total)*100).toFixed(1):'0.0'}% of total`);
-  set('s-new',   `${total>0?((nonCust/total)*100).toFixed(1):'0.0'}% of total`);
+  const tNames=Object.keys(teams).sort();
+  set('team-cnt',`${tNames.length} team${tNames.length!==1?'s':''}`);
 
-  // Mini cards
-  set('m-upgrade',  upgradeInt);
-  set('m-newserv',  newServInt);
-  set('m-notint',   notInt);
-  set('m-rate',     convRate + '%');
+  document.getElementById('team-cards').innerHTML=tNames.length
+    ?tNames.map(n=>{const t=teams[n],rate=((t.interested/t.count)*100).toFixed(1);return`<div class="team-card"><div class="team-card-top"><div class="team-card-name">${n}</div><span class="rate-pill">${rate}%</span></div><div class="team-stats"><div><div class="ts-val">${t.count}</div><div class="ts-lbl">Total</div></div><div><div class="ts-val">${t.interested}</div><div class="ts-lbl">Int.</div></div><div><div class="ts-val">${t.existing}</div><div class="ts-lbl">Exist.</div></div><div><div class="ts-val">${t.upgrade}</div><div class="ts-lbl">Upgrd</div></div><div><div class="ts-val">${t.newService}</div><div class="ts-lbl">New</div></div></div></div>`;}).join('')
+    :empty('👥','No team data');
 
-  // Teams
-  const teamNames = Object.keys(teams).sort();
-  set('team-count', `${teamNames.length} team${teamNames.length!==1?'s':''}`);
+  document.getElementById('team-body').innerHTML=tNames.length
+    ?tNames.map(n=>{const t=teams[n],rate=((t.interested/t.count)*100).toFixed(1);return`<tr><td>${n}</td><td>${t.count}</td><td>${t.interested}</td><td>${t.existing}</td><td>${t.upgrade}</td><td>${t.newService}</td><td><span class="rate-pill">${rate}%</span></td></tr>`;}).join('')
+    :`<tr><td colspan="7">${empty('👥','No team data')}</td></tr>`;
 
-  if (!teamNames.length) {
-    document.getElementById('team-cards').innerHTML = `<div class="empty"><div class="ico">👥</div><p>No team data yet</p></div>`;
-    document.getElementById('team-body').innerHTML  = `<tr><td colspan="7"><div class="empty"><div class="ico">👥</div><p>No team data yet</p></div></td></tr>`;
-  } else {
-    // Mobile cards
-    document.getElementById('team-cards').innerHTML = teamNames.map(name => {
-      const t = teams[name];
-      const rate = ((t.interested/t.count)*100).toFixed(1);
-      return `<div class="team-card">
-        <div class="team-card-top">
-          <div class="team-card-name">${name}</div>
-          <span class="rate-pill">${rate}%</span>
-        </div>
-        <div class="team-card-stats">
-          <div class="team-stat"><div class="team-stat-val">${t.count}</div><div class="team-stat-lbl">Total</div></div>
-          <div class="team-stat"><div class="team-stat-val">${t.interested}</div><div class="team-stat-lbl">Interest</div></div>
-          <div class="team-stat"><div class="team-stat-val">${t.existing}</div><div class="team-stat-lbl">Existing</div></div>
-          <div class="team-stat"><div class="team-stat-val">${t.upgrade}</div><div class="team-stat-lbl">Upgrade</div></div>
-          <div class="team-stat"><div class="team-stat-val">${t.newService}</div><div class="team-stat-lbl">New</div></div>
-        </div>
-      </div>`;
-    }).join('');
-
-    // Desktop table
-    document.getElementById('team-body').innerHTML = teamNames.map(name => {
-      const t = teams[name];
-      const rate = ((t.interested/t.count)*100).toFixed(1);
-      return `<tr>
-        <td>${name}</td><td>${t.count}</td><td>${t.interested}</td>
-        <td>${t.existing}</td><td>${t.upgrade}</td><td>${t.newService}</td>
-        <td><span class="rate-pill">${rate}%</span></td>
-      </tr>`;
-    }).join('');
-  }
-
-  // Leads list
-  const interested = rows.filter(r =>
-    (r.isCustomer==='Yes' && r.upgradeInterest==='Yes') ||
-    (r.isCustomer==='No'  && r.newServiceInterest==='Yes')
-  ).sort((a,b) => b.timestamp - a.timestamp).slice(0, 40);
-
-  set('leads-count', interested.length);
-  document.getElementById('leads-list').innerHTML = interested.length
-    ? interested.map(r => {
-        const up = r.isCustomer === 'Yes';
-        return `<div class="lead-item">
-          <div class="lead-info">
-            <div class="lead-name">${r.name}</div>
-            <div class="lead-meta">📞 ${r.contact} · 📍 ${r.town} · ${r.team}</div>
-          </div>
-          <span class="lead-tag ${up?'tag-upgrade':'tag-new'}">${up?'⬆ Upgrade':'✨ New'}</span>
-        </div>`;
-      }).join('')
-    : `<div class="empty"><div class="ico">📋</div><p>No interested leads yet</p></div>`;
+  const interested=rows.filter(r=>(r.isCustomer==='Yes'&&r.upgradeInterest==='Yes')||(r.isCustomer==='No'&&r.newServiceInterest==='Yes')).sort((a,b)=>b.timestamp-a.timestamp).slice(0,40);
+  set('leads-cnt',interested.length);
+  document.getElementById('leads-list').innerHTML=interested.length
+    ?interested.map(r=>{const up=r.isCustomer==='Yes';return`<div class="lead-item"><div class="lead-info"><div class="lead-name">${r.name}</div><div class="lead-meta">📞 ${r.contact} · 📍 ${r.town} · ${r.team}</div></div><span class="lead-tag ${up?'tag-up':'tag-new'}">${up?'⬆ Upgrade':'✨ New'}</span></div>`;}).join('')
+    :empty('📋','No interested leads yet');
 
   setError(null);
 }
 
-function showNoData() {
-  document.getElementById('no-data-banner').style.display = 'block';
-  ['m-total','m-interested','m-existing','m-new','m-upgrade','m-newserv','m-notint','m-rate'].forEach(id => set(id, '—'));
-  set('leads-count', 0);
-  document.getElementById('leads-list').innerHTML = `<div class="empty"><div class="ico">📋</div><p>No data available</p></div>`;
-  document.getElementById('team-cards').innerHTML = `<div class="empty"><div class="ico">👥</div><p>No data</p></div>`;
-  document.getElementById('team-body').innerHTML  = `<tr><td colspan="7"><div class="empty"><p>No data</p></div></td></tr>`;
+/* ── ANIMATE NUMBER ── */
+function animNum(id,target){
+  const el=document.getElementById(id); if(!el)return;
+  const cur=parseInt(el.textContent,10)||0;
+  if(cur===target){el.textContent=target;return;}
+  const step=target>cur?1:-1,diff=Math.abs(target-cur),delay=diff>10?18:55;
+  el.classList.add('upd'); let v=cur;
+  const t=setInterval(()=>{v+=step;el.textContent=v;if(v===target){clearInterval(t);el.classList.remove('upd');}},delay);
 }
 
-/* ─── HELPERS ────────────────────────────────────────────────────────────── */
-function set(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val;
+function setError(msg){
+  const b=document.getElementById('error-banner');
+  b.style.display=msg?'block':'none';
+  if(msg)b.textContent='⚠ '+msg;
 }
 
-function animNum(id, target) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const cur = parseInt(el.textContent, 10) || 0;
-  if (cur === target) { el.textContent = target; return; }
-  const step  = target > cur ? 1 : -1;
-  const diff  = Math.abs(target - cur);
-  const delay = diff > 10 ? 18 : 55;
-  el.classList.add('updating');
-  let v = cur;
-  const t = setInterval(() => {
-    v += step;
-    el.textContent = v;
-    if (v === target) { clearInterval(t); el.classList.remove('updating'); }
-  }, delay);
-}
-
-function setError(msg) {
-  const b = document.getElementById('error-banner');
-  b.style.display = msg ? 'block' : 'none';
-  if (msg) b.textContent = '⚠ ' + msg;
-}
-
-/* ─── REFRESH ────────────────────────────────────────────────────────────── */
-async function refresh() {
-  try {
-    const raw  = await fetchSheetData();
-    allRows    = raw.map(parseRow).filter(Boolean);
-    const list = buildRegionList(allRows);
-    renderChips(list);
-    renderDashboard();
-  } catch (err) {
+/* ── REFRESH ── */
+async function refresh(){
+  try{
+    const raw=await fetchSheet();
+    allRows=raw.map(parseRow).filter(Boolean);
+    redraw();
+  }catch(err){
     console.error(err);
-    setError('Cannot load sheet. Make sure the spreadsheet is shared as "Anyone with the link can view". ' + err.message);
-    set('last-time', 'Failed – retrying…');
+    setError(err.message);
+    set('last-time','Failed – retrying…');
   }
 }
 
-/* ─── TICK ───────────────────────────────────────────────────────────────── */
-function tick() {
+/* ── TICK ── */
+function tick(){
   countdown--;
-  if (countdown <= 0) { countdown = REFRESH_SECONDS; refresh(); }
-  const ring   = document.getElementById('ring');
-  const offset = CIRCUM * (1 - countdown / REFRESH_SECONDS);
-  ring.style.strokeDashoffset = CIRCUM - offset;
-  set('countdown-label', countdown + 's');
+  if(countdown<=0){countdown=REFRESH_SEC;refresh();}
+  const ring=document.getElementById('ring');
+  ring.style.strokeDashoffset=CIRCUM-CIRCUM*(1-countdown/REFRESH_SEC);
+  set('cd-lbl',countdown+'s');
 }
 
 refresh();
-setInterval(tick, 1000);
+setInterval(tick,1000);
 </script>
 </body>
 </html>
