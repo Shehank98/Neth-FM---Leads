@@ -168,8 +168,8 @@
 <div class="sticky-top">
   <header class="header">
     <div class="header-left">
-      <h1>SLT-MOBITEL — <span>NETH FM</span></h1>
-      <p>Campaign Live Dashboard</p>
+      <h1>SLT-MOBITEL - <span>NETH FM</span></h1>
+      <p>Campaign Live Dashboard Developed by Ogilvy Media</p>
     </div>
     <div class="header-right">
       <div class="live-badge"><div class="live-dot"></div>LIVE</div>
@@ -199,10 +199,10 @@
 
   <div class="loc-banner">
     <div class="loc-left">
-      <span class="loc-date"  id="loc-date">—</span>
-      <span class="loc-place" id="loc-place">📍 —</span>
+      <span class="loc-date"  id="loc-date">-</span>
+      <span class="loc-place" id="loc-place">📍 -</span>
     </div>
-    <div class="loc-right">Updated: <strong id="last-time">—</strong></div>
+    <div class="loc-right">Updated: <strong id="last-time">-</strong></div>
   </div>
 </div>
 
@@ -214,29 +214,29 @@
     <div class="card c-purple">
       <div class="card-accent"></div>
       <div class="card-label">Total Leads</div>
-      <div class="card-value" id="m-total">—</div>
+      <div class="card-value" id="m-total">-</div>
       <div class="card-sub"  id="s-total">recorded today</div>
       <div class="card-bar"><div class="card-bar-fill" style="width:100%"></div></div>
     </div>
     <div class="card c-green">
       <div class="card-accent"></div>
       <div class="card-label">Interested</div>
-      <div class="card-value" id="m-int">—</div>
-      <div class="card-sub"  id="s-conv">—% conversion</div>
+      <div class="card-value" id="m-int">-</div>
+      <div class="card-sub"  id="s-conv">-% conversion</div>
       <div class="card-bar"><div class="card-bar-fill" id="b-int" style="width:0%"></div></div>
     </div>
     <div class="card c-orange">
       <div class="card-accent"></div>
       <div class="card-label">Existing Cust.</div>
-      <div class="card-value" id="m-exist">—</div>
-      <div class="card-sub"  id="s-exist">—% of total</div>
+      <div class="card-value" id="m-exist">-</div>
+      <div class="card-sub"  id="s-exist">-% of total</div>
       <div class="card-bar"><div class="card-bar-fill" id="b-exist" style="width:0%"></div></div>
     </div>
     <div class="card c-blue">
       <div class="card-accent"></div>
       <div class="card-label">New Prospects</div>
-      <div class="card-value" id="m-new">—</div>
-      <div class="card-sub"  id="s-new">—% of total</div>
+      <div class="card-value" id="m-new">-</div>
+      <div class="card-sub"  id="s-new">-% of total</div>
       <div class="card-bar"><div class="card-bar-fill" id="b-new" style="width:0%"></div></div>
     </div>
   </div>
@@ -244,22 +244,22 @@
   <div class="secondary">
     <div class="mini-card">
       <div class="mini-label">⬆ Upgrades</div>
-      <div class="mini-value" id="m-up">—</div>
+      <div class="mini-value" id="m-up">-</div>
       <div class="mini-sub">Pkg upgrade interest</div>
     </div>
     <div class="mini-card">
       <div class="mini-label">✨ New Service</div>
-      <div class="mini-value" id="m-ns">—</div>
+      <div class="mini-value" id="m-ns">-</div>
       <div class="mini-sub">New sign-up interest</div>
     </div>
     <div class="mini-card">
       <div class="mini-label">⏸ Not Interested</div>
-      <div class="mini-value" id="m-ni">—</div>
+      <div class="mini-value" id="m-ni">-</div>
       <div class="mini-sub">No interest</div>
     </div>
     <div class="mini-card">
       <div class="mini-label">📊 Conv. Rate</div>
-      <div class="mini-value" id="m-rate">—</div>
+      <div class="mini-value" id="m-rate">-</div>
       <div class="mini-sub">Interested / Total</div>
     </div>
   </div>
@@ -268,7 +268,7 @@
     <div class="section">
       <div class="section-hdr">
         <div class="section-title">👥 Team Performance</div>
-        <div class="section-badge" id="team-cnt">—</div>
+        <div class="section-badge" id="team-cnt">-</div>
       </div>
       <div class="team-cards" id="team-cards">
         <div class="empty"><div class="ico">📊</div><p>Loading…</p></div>
@@ -327,12 +327,12 @@ function fmtLong(ds) { const[y,m,d]=ds.split('-').map(Number); return new Date(y
 function fmtTime(d)  { return d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:TIMEZONE}); }
 function yn(v){ if(!v)return'Unknown'; const s=v.toString().toLowerCase(); if(s.includes('yes')||s==='y')return'Yes'; if(s.includes('no')||s==='n')return'No'; return'Unknown'; }
 function cleanTeam(v){ if(!v)return'Unknown'; let s=v.toString().trim().replace(/Team\s*N0\s*/i,'Team No ').replace(/Team\s*No\s*/i,'Team No '); return s.charAt(0).toUpperCase()+s.slice(1); }
-function cleanTown(v){ if(!v)return'—'; return v.toString().trim().split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' '); }
+function cleanTown(v){ if(!v)return'-'; return v.toString().trim().split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' '); }
 function set(id,v){ const e=document.getElementById(id); if(e)e.textContent=v; }
 function pct(id,v){ const e=document.getElementById(id); if(e)e.style.width=Math.min(100,Math.max(0,v)).toFixed(1)+'%'; }
 function empty(ico,msg){ return `<div class="empty"><div class="ico">${ico}</div><p>${msg}</p></div>`; }
 
-/* ── CSV PARSER — handles quoted fields ── */
+/* ── CSV PARSER - handles quoted fields ── */
 function parseCSV(text){
   const rows=[]; let row=[],field='',inQ=false;
   for(let i=0;i<text.length;i++){
@@ -350,11 +350,11 @@ function parseCSV(text){
   return rows;
 }
 
-/* ── FETCH via CSV export — bypasses ALL sheet filters ── */
+/* ── FETCH via CSV export - bypasses ALL sheet filters ── */
 async function fetchSheet(){
   const url=`https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&sheet=${encodeURIComponent(SHEET_NAME)}&_=${Date.now()}`;
   const res=await fetch(url);
-  if(!res.ok) throw new Error(`HTTP ${res.status} — share the sheet as "Anyone with link can view"`);
+  if(!res.ok) throw new Error(`HTTP ${res.status} - share the sheet as "Anyone with link can view"`);
   const text=await res.text();
   return parseCSV(text).slice(1); // drop header
 }
@@ -440,7 +440,7 @@ function renderDashboard(rm){
 
   document.getElementById('nodata-banner').style.display=rows.length?'none':'block';
   if(!rows.length){
-    ['m-total','m-int','m-exist','m-new','m-up','m-ns','m-ni','m-rate'].forEach(id=>set(id,'—'));
+    ['m-total','m-int','m-exist','m-new','m-up','m-ns','m-ni','m-rate'].forEach(id=>set(id,'-'));
     set('leads-cnt',0); set('team-cnt','0 teams');
     document.getElementById('leads-list').innerHTML=empty('📋','No data for this selection');
     document.getElementById('team-cards').innerHTML=empty('👥','No data');
