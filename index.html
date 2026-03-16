@@ -2,393 +2,497 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SLT-MOBITEL Fibre – NETH FM Live Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>NETH FM · Live Dashboard</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:       #0d1117;
-      --surface:  #161b22;
-      --border:   #21262d;
-      --purple:   #7c3aed;
-      --purple2:  #a855f7;
-      --green:    #10b981;
-      --orange:   #f59e0b;
-      --red:      #ef4444;
-      --blue:     #3b82f6;
-      --text:     #f0f6fc;
-      --muted:    #8b949e;
+      --bg:      #0d1117;
+      --surface: #161b22;
+      --surface2:#1c2230;
+      --border:  #21262d;
+      --purple:  #7c3aed;
+      --purple2: #a855f7;
+      --green:   #10b981;
+      --orange:  #f59e0b;
+      --red:     #ef4444;
+      --blue:    #3b82f6;
+      --text:    #f0f6fc;
+      --muted:   #8b949e;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
+
+    html { scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       min-height: 100vh;
-      padding: 0 0 40px;
+      padding-bottom: calc(32px + var(--safe-bottom));
+      -webkit-tap-highlight-color: transparent;
     }
 
-    /* ── Header ── */
+    /* ══ STICKY TOP ══════════════════════════════════════════════════════════ */
+    .sticky-top {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    /* ══ HEADER ══════════════════════════════════════════════════════════════ */
     .header {
       background: linear-gradient(135deg, #1a0533 0%, #0d1b4e 100%);
       border-bottom: 1px solid var(--border);
-      padding: 24px 32px;
+      padding: 14px 16px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 16px;
+      gap: 12px;
     }
+
     .header-left h1 {
-      font-size: clamp(18px, 3vw, 26px);
+      font-size: 15px;
       font-weight: 800;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.3px;
+      line-height: 1.2;
+      white-space: nowrap;
     }
     .header-left h1 span { color: var(--purple2); }
     .header-left p {
-      font-size: 13px;
+      font-size: 11px;
       color: var(--muted);
-      margin-top: 4px;
+      margin-top: 2px;
     }
+
     .header-right {
       display: flex;
       align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
+      gap: 10px;
+      flex-shrink: 0;
     }
 
-    /* Live badge */
     .live-badge {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: rgba(16,185,129,0.12);
       border: 1px solid rgba(16,185,129,0.3);
-      padding: 8px 16px;
+      padding: 6px 12px;
       border-radius: 30px;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--green);
-      letter-spacing: 1px;
+      letter-spacing: 0.8px;
     }
     .live-dot {
-      width: 8px; height: 8px;
+      width: 7px; height: 7px;
       border-radius: 50%;
       background: var(--green);
-      animation: pulse 1.2s infinite;
+      animation: blink 1.2s infinite;
+      flex-shrink: 0;
     }
-    @keyframes pulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50%      { opacity: 0.3; transform: scale(1.4); }
+    @keyframes blink {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.3; transform:scale(1.4); }
     }
 
-    /* Refresh ring */
-    .refresh-ring {
-      width: 36px; height: 36px;
-      position: relative;
+    .refresh-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
     }
-    .refresh-ring svg {
-      transform: rotate(-90deg);
-      width: 100%; height: 100%;
-    }
-    .refresh-ring circle.track {
-      fill: none;
-      stroke: var(--border);
-      stroke-width: 3;
-    }
+    .refresh-ring { width: 30px; height: 30px; }
+    .refresh-ring svg { transform: rotate(-90deg); width:100%; height:100%; }
+    .refresh-ring circle.track    { fill:none; stroke:var(--border); stroke-width:3; }
     .refresh-ring circle.progress {
-      fill: none;
-      stroke: var(--purple2);
-      stroke-width: 3;
-      stroke-linecap: round;
-      stroke-dasharray: 88;
-      stroke-dashoffset: 88;
+      fill:none; stroke:var(--purple2); stroke-width:3; stroke-linecap:round;
+      stroke-dasharray: 88; stroke-dashoffset: 88;
       transition: stroke-dashoffset 1s linear;
     }
+    .refresh-label { font-size:9px; color:var(--muted); }
 
-    /* Last updated */
-    .last-updated {
-      font-size: 11px;
-      color: var(--muted);
-      text-align: right;
-    }
-    .last-updated strong { color: var(--text); }
-
-    /* ── Date banner ── */
-    .date-banner {
-      background: linear-gradient(90deg, rgba(124,58,237,0.15) 0%, rgba(59,130,246,0.08) 100%);
+    /* ══ REGION SELECTOR BAR ════════════════════════════════════════════════ */
+    .selector-bar {
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 14px 32px;
+      padding: 10px 0;
+    }
+    .selector-inner {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 16px;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+    .selector-inner::-webkit-scrollbar { display: none; }
+
+    .region-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all 0.2s;
+      min-width: 90px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .region-chip:active { transform: scale(0.96); }
+    .region-chip.active {
+      background: rgba(124,58,237,0.2);
+      border-color: var(--purple2);
+    }
+    .region-chip .chip-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+    }
+    .region-chip.active .chip-label { color: var(--purple2); }
+    .region-chip .chip-date {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .region-chip .chip-count {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--green);
+      margin-top: 3px;
+    }
+    .chip-today-badge {
+      display: inline-block;
+      background: var(--green);
+      color: #000;
+      font-size: 8px;
+      font-weight: 800;
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ══ LOCATION BANNER ════════════════════════════════════════════════════ */
+    .loc-banner {
+      background: linear-gradient(90deg, rgba(124,58,237,0.12) 0%, rgba(59,130,246,0.06) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 8px;
-      font-size: 13px;
-    }
-    .date-banner .date-str { color: var(--text); font-weight: 700; }
-    .date-banner .location-str {
-      color: var(--purple2);
-      font-weight: 600;
-      display: flex;
-      align-items: center;
       gap: 6px;
+      font-size: 12px;
     }
-    .status-error {
-      background: rgba(239,68,68,0.12);
+    .loc-date  { color: var(--text); font-weight: 700; }
+    .loc-place { color: var(--purple2); font-weight: 600; }
+    .loc-time  { color: var(--muted); font-size: 11px; }
+
+    /* ══ ERROR ══════════════════════════════════════════════════════════════ */
+    #error-banner {
+      display: none;
+      margin: 12px 16px 0;
+      background: rgba(239,68,68,0.1);
       border: 1px solid rgba(239,68,68,0.3);
       color: #fca5a5;
-      padding: 6px 14px;
-      border-radius: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
       font-size: 12px;
     }
 
-    /* ── Main layout ── */
-    .content { padding: 32px; max-width: 1400px; margin: 0 auto; }
+    /* ══ CONTENT ════════════════════════════════════════════════════════════ */
+    .content { padding: 14px 14px 0; }
 
-    /* ── Metric cards ── */
-    .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 32px; }
+    /* ══ PRIMARY METRIC CARDS (2×2 on mobile) ═══════════════════════════════ */
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 28px 24px;
+      border-radius: 14px;
+      padding: 16px 14px 14px;
       position: relative;
       overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
     }
-    .card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
     .card-accent {
       position: absolute;
       top: 0; left: 0;
-      width: 100%; height: 4px;
+      width: 100%; height: 3px;
     }
     .card-label {
-      font-size: 10px;
+      font-size: 9px;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
+      letter-spacing: 1.2px;
       color: var(--muted);
       font-weight: 700;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
+      line-height: 1.3;
     }
     .card-value {
-      font-size: clamp(42px, 6vw, 64px);
+      font-size: 44px;
       font-weight: 900;
       line-height: 1;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
       transition: opacity 0.3s;
     }
-    .card-value.updating { opacity: 0.4; }
-    .card-sub {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 500;
-    }
-    .card-bar {
-      margin-top: 18px;
-      height: 6px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .card-bar-fill {
-      height: 100%;
-      border-radius: 3px;
-      transition: width 0.8s ease;
-    }
+    .card-value.updating { opacity: 0.35; }
+    .card-sub  { font-size: 10px; color: var(--muted); font-weight: 500; line-height: 1.4; }
+    .card-bar  { margin-top: 12px; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+    .card-bar-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
 
-    /* Color themes */
-    .c-purple  .card-value { background: linear-gradient(135deg, #7c3aed, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: #7c3aed; }
-    .c-purple  .card-accent, .c-purple  .card-bar-fill { background: linear-gradient(90deg, #7c3aed, #a855f7); }
-    .c-green   .card-value { background: linear-gradient(135deg, #10b981, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: #10b981; }
-    .c-green   .card-accent, .c-green   .card-bar-fill { background: linear-gradient(90deg, #10b981, #34d399); }
-    .c-orange  .card-value { background: linear-gradient(135deg, #f59e0b, #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: #f59e0b; }
-    .c-orange  .card-accent, .c-orange  .card-bar-fill { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-    .c-blue    .card-value { background: linear-gradient(135deg, #3b82f6, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; color: #3b82f6; }
-    .c-blue    .card-accent, .c-blue    .card-bar-fill { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+    .c-purple .card-value { background:linear-gradient(135deg,#7c3aed,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; color:#7c3aed; }
+    .c-purple .card-accent,.c-purple .card-bar-fill { background:linear-gradient(90deg,#7c3aed,#a855f7); }
+    .c-green  .card-value { background:linear-gradient(135deg,#10b981,#34d399); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; color:#10b981; }
+    .c-green  .card-accent,.c-green  .card-bar-fill { background:linear-gradient(90deg,#10b981,#34d399); }
+    .c-orange .card-value { background:linear-gradient(135deg,#f59e0b,#fbbf24); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; color:#f59e0b; }
+    .c-orange .card-accent,.c-orange .card-bar-fill { background:linear-gradient(90deg,#f59e0b,#fbbf24); }
+    .c-blue   .card-value { background:linear-gradient(135deg,#3b82f6,#60a5fa); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; color:#3b82f6; }
+    .c-blue   .card-accent,.c-blue   .card-bar-fill { background:linear-gradient(90deg,#3b82f6,#60a5fa); }
 
-    /* ── Secondary row: conversion + not interested ── */
-    .secondary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 32px; }
+    /* ══ SECONDARY MINI CARDS (2×2 on mobile) ═══════════════════════════════ */
+    .secondary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
     .mini-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 20px;
+      padding: 14px 12px;
     }
-    .mini-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); font-weight: 700; margin-bottom: 8px; }
-    .mini-value { font-size: 28px; font-weight: 900; color: var(--text); }
-    .mini-sub   { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .mini-label { font-size: 9px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700; margin-bottom:6px; line-height:1.3; }
+    .mini-value { font-size: 26px; font-weight:900; color:var(--text); }
+    .mini-sub   { font-size: 10px; color:var(--muted); margin-top:3px; }
 
-    /* ── Panels ── */
-    .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    @media (max-width: 900px) { .panels { grid-template-columns: 1fr; } }
-
-    .panel {
+    /* ══ TEAM SECTION ═══════════════════════════════════════════════════════ */
+    .section {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 14px;
       overflow: hidden;
+      margin-bottom: 12px;
     }
-    .panel-header {
-      padding: 20px 24px 16px;
+    .section-header {
+      padding: 14px 16px 12px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-    .panel-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-    .panel-badge {
-      font-size: 10px; font-weight: 700;
-      padding: 4px 10px; border-radius: 20px;
-      background: rgba(124,58,237,0.2);
-      color: var(--purple2);
+    .section-title { font-size: 12px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; }
+    .section-badge {
+      font-size: 10px; font-weight:700;
+      padding: 3px 9px; border-radius: 20px;
+      background: rgba(124,58,237,0.2); color:var(--purple2);
     }
 
-    /* Team table */
-    .team-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .team-table th {
-      padding: 12px 16px;
-      text-align: center;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--muted);
-      font-weight: 700;
-      background: rgba(255,255,255,0.02);
-      border-bottom: 1px solid var(--border);
+    /* Mobile team: card stack */
+    .team-cards { padding: 8px; display:flex; flex-direction:column; gap:8px; }
+    .team-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
     }
-    .team-table th:first-child { text-align: left; }
-    .team-table td {
-      padding: 14px 16px;
-      text-align: center;
-      border-bottom: 1px solid var(--border);
-      color: var(--muted);
-      font-weight: 500;
+    .team-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
     }
-    .team-table td:first-child { text-align: left; color: var(--text); font-weight: 700; }
-    .team-table tr:last-child td { border-bottom: none; }
-    .team-table tr:hover td { background: rgba(255,255,255,0.03); }
+    .team-card-name { font-size:13px; font-weight:700; }
     .rate-pill {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-      background: rgba(16,185,129,0.15);
-      color: var(--green);
+      display:inline-block;
+      padding:3px 10px; border-radius:20px;
+      font-size:11px; font-weight:700;
+      background:rgba(16,185,129,0.15); color:var(--green);
     }
+    .team-card-stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+    }
+    .team-stat { text-align:center; }
+    .team-stat-val  { font-size:16px; font-weight:800; color:var(--text); }
+    .team-stat-lbl  { font-size:8px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-top:1px; }
 
-    /* Recent leads list */
-    .leads-list { padding: 8px 0; max-height: 380px; overflow-y: auto; }
-    .leads-list::-webkit-scrollbar { width: 4px; }
-    .leads-list::-webkit-scrollbar-track { background: transparent; }
-    .leads-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    /* Desktop team: table (hidden on mobile) */
+    .team-table-wrap { display:none; overflow-x:auto; }
+    .team-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .team-table th {
+      padding:11px 14px; text-align:center;
+      font-size:9px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); font-weight:700;
+      background:rgba(255,255,255,0.02); border-bottom:1px solid var(--border);
+    }
+    .team-table th:first-child { text-align:left; }
+    .team-table td {
+      padding:13px 14px; text-align:center;
+      border-bottom:1px solid var(--border);
+      color:var(--muted); font-weight:500;
+    }
+    .team-table td:first-child { text-align:left; color:var(--text); font-weight:700; }
+    .team-table tr:last-child td { border-bottom:none; }
+    .team-table tr:hover td { background:rgba(255,255,255,0.02); }
+
+    /* ══ LEADS LIST ═════════════════════════════════════════════════════════ */
+    .leads-scroll {
+      max-height: 400px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .leads-scroll::-webkit-scrollbar { width:3px; }
+    .leads-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
 
     .lead-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 20px;
+      padding: 12px 16px;
       border-bottom: 1px solid var(--border);
-      gap: 12px;
-      animation: fadeIn 0.4s ease;
+      gap: 10px;
+      animation: slideIn 0.35s ease;
     }
-    .lead-item:last-child { border-bottom: none; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
+    .lead-item:last-child { border-bottom:none; }
+    @keyframes slideIn { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:none} }
 
-    .lead-info { flex: 1; min-width: 0; }
-    .lead-name { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .lead-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .lead-info { flex:1; min-width:0; }
+    .lead-name { font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .lead-meta { font-size:11px; color:var(--muted); margin-top:2px; line-height:1.4; }
     .lead-tag {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 20px;
-      white-space: nowrap;
-      flex-shrink: 0;
+      font-size:9px; font-weight:700;
+      padding:4px 9px; border-radius:20px;
+      white-space:nowrap; flex-shrink:0;
     }
-    .tag-upgrade { background: rgba(239,68,68,0.15); color: #fca5a5; }
-    .tag-new     { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+    .tag-upgrade { background:rgba(239,68,68,0.15); color:#fca5a5; }
+    .tag-new     { background:rgba(16,185,129,0.15); color:#6ee7b7; }
 
-    /* Empty state */
-    .empty-state {
-      text-align: center;
-      padding: 48px 24px;
-      color: var(--muted);
+    /* ══ EMPTY + ERROR ═══════════════════════════════════════════════════════ */
+    .empty {
+      text-align:center; padding:36px 20px; color:var(--muted);
     }
-    .empty-state .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
-    .empty-state p { font-size: 13px; }
+    .empty .ico { font-size:36px; margin-bottom:10px; opacity:0.25; }
+    .empty p    { font-size:12px; }
 
-    /* Error state */
-    #error-banner {
-      display: none;
-      background: rgba(239,68,68,0.1);
-      border: 1px solid rgba(239,68,68,0.3);
-      color: #fca5a5;
-      padding: 12px 24px;
-      margin: 20px 32px 0;
-      border-radius: 10px;
-      font-size: 13px;
+    /* ══ NO DATA OVERLAY ════════════════════════════════════════════════════ */
+    #no-data-banner {
+      display:none;
+      margin:14px 14px 0;
+      background:rgba(245,158,11,0.1);
+      border:1px solid rgba(245,158,11,0.3);
+      color:#fcd34d;
+      padding:10px 14px;
+      border-radius:10px;
+      font-size:12px;
     }
 
-    /* Loading shimmer */
-    .shimmer {
-      background: linear-gradient(90deg, var(--surface) 25%, rgba(255,255,255,0.04) 50%, var(--surface) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
+    /* ══ LOADING SKELETON ═══════════════════════════════════════════════════ */
+    .skel {
+      background:linear-gradient(90deg,var(--surface) 25%,rgba(255,255,255,0.04) 50%,var(--surface) 75%);
+      background-size:200% 100%;
+      animation:skel 1.4s infinite;
+      border-radius:8px;
     }
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    @keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-    /* Tooltip */
-    [title] { cursor: help; }
+    /* ══ DESKTOP OVERRIDES (≥ 640px) ════════════════════════════════════════ */
+    @media (min-width: 640px) {
+      .header { padding:18px 24px; }
+      .header-left h1 { font-size:20px; }
+      .selector-inner { padding:2px 24px; }
 
-    /* Responsive */
-    @media (max-width: 600px) {
-      .header { padding: 16px 20px; }
-      .content { padding: 20px; }
+      .content { padding:20px 24px 0; max-width:1400px; margin:0 auto; }
+
+      .metrics   { grid-template-columns: repeat(4,1fr); gap:16px; margin-bottom:16px; }
+      .secondary { grid-template-columns: repeat(4,1fr); gap:16px; margin-bottom:20px; }
+
+      .card { padding:22px 20px 18px; }
+      .card-label { font-size:10px; }
+      .card-value { font-size:52px; }
+      .mini-value { font-size:30px; }
+
+      .team-cards { display:none; }
+      .team-table-wrap { display:block; }
+
+      .panels { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+
+      .loc-banner { padding:10px 24px; font-size:13px; }
+      #error-banner { margin:16px 24px 0; }
+      #no-data-banner { margin:16px 24px 0; }
+    }
+
+    @media (min-width: 900px) {
+      .header-left h1 { font-size:24px; }
     }
   </style>
 </head>
 <body>
 
-<!-- ══ HEADER ══════════════════════════════════════════════════════════════ -->
-<header class="header">
-  <div class="header-left">
-    <h1>SLT-MOBITEL Fibre Unlimited — <span>NETH FM</span></h1>
-    <p>Mobile Campaign · Live Lead Tracker</p>
-  </div>
-  <div class="header-right">
-    <div class="live-badge">
-      <div class="live-dot"></div>
-      LIVE
-    </div>
-    <div class="refresh-ring" title="Refreshes every 10 seconds">
-      <svg viewBox="0 0 32 32">
-        <circle class="track"    cx="16" cy="16" r="14"/>
-        <circle class="progress" cx="16" cy="16" r="14" id="ring"/>
-      </svg>
-    </div>
-    <div class="last-updated">
-      <div>Last updated</div>
-      <strong id="last-time">—</strong>
-    </div>
-  </div>
-</header>
+<!-- ══ STICKY HEADER + SELECTOR ══════════════════════════════════════════════ -->
+<div class="sticky-top">
 
-<!-- ══ DATE + LOCATION BANNER ══════════════════════════════════════════════ -->
-<div class="date-banner">
-  <div>
-    📅 <span class="date-str" id="today-label">Loading…</span>
-  </div>
-  <div class="location-str">
-    📍 <span id="location-label">Detecting location…</span>
-  </div>
-  <div id="error-inline" style="display:none;" class="status-error">⚠ Sheet must be public to fetch data</div>
-</div>
+  <header class="header">
+    <div class="header-left">
+      <h1>SLT-MOBITEL — <span>NETH FM</span></h1>
+      <p>Campaign Live Dashboard</p>
+    </div>
+    <div class="header-right">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        LIVE
+      </div>
+      <div class="refresh-wrap">
+        <div class="refresh-ring">
+          <svg viewBox="0 0 32 32">
+            <circle class="track"    cx="16" cy="16" r="14"/>
+            <circle class="progress" cx="16" cy="16" r="14" id="ring"/>
+          </svg>
+        </div>
+        <div class="refresh-label" id="countdown-label">10s</div>
+      </div>
+    </div>
+  </header>
 
-<!-- ══ ERROR BANNER ═════════════════════════════════════════════════════════ -->
+  <!-- Region / Day selector -->
+  <div class="selector-bar">
+    <div class="selector-inner" id="region-chips">
+      <div class="region-chip active">
+        <div class="chip-label skel" style="width:70px;height:12px;"></div>
+        <div class="chip-date skel" style="width:50px;height:9px;margin-top:4px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Location + date banner -->
+  <div class="loc-banner">
+    <div class="loc-date" id="loc-date">—</div>
+    <div class="loc-place" id="loc-place">📍 —</div>
+    <div class="loc-time">Updated: <strong id="last-time">—</strong></div>
+  </div>
+
+</div><!-- /sticky-top -->
+
+<!-- Error / No-data banners -->
 <div id="error-banner"></div>
+<div id="no-data-banner">⚠ No leads recorded for this region / date yet.</div>
 
 <!-- ══ MAIN CONTENT ══════════════════════════════════════════════════════════ -->
 <div class="content">
@@ -397,404 +501,448 @@
   <div class="metrics">
     <div class="card c-purple">
       <div class="card-accent"></div>
-      <div class="card-label">Total Leads Today</div>
+      <div class="card-label">Total Leads</div>
       <div class="card-value" id="m-total">—</div>
-      <div class="card-sub">Collected so far</div>
-      <div class="card-bar"><div class="card-bar-fill" id="b-total" style="width:100%"></div></div>
+      <div class="card-sub">Collected today</div>
+      <div class="card-bar"><div class="card-bar-fill" style="width:100%"></div></div>
     </div>
     <div class="card c-green">
       <div class="card-accent"></div>
-      <div class="card-label">Interested Leads</div>
+      <div class="card-label">Interested</div>
       <div class="card-value" id="m-interested">—</div>
-      <div class="card-sub" id="s-conversion">Conversion rate</div>
-      <div class="card-bar"><div class="card-bar-fill" id="b-interested" style="width:0%"></div></div>
+      <div class="card-sub" id="s-conv">— conversion</div>
+      <div class="card-bar"><div class="card-bar-fill" id="b-int" style="width:0%"></div></div>
     </div>
     <div class="card c-orange">
       <div class="card-accent"></div>
-      <div class="card-label">Existing Customers</div>
+      <div class="card-label">Existing Cust.</div>
       <div class="card-value" id="m-existing">—</div>
-      <div class="card-sub" id="s-existing">Interested in upgrade</div>
-      <div class="card-bar"><div class="card-bar-fill" id="b-existing" style="width:0%"></div></div>
+      <div class="card-sub" id="s-exist">— of total</div>
+      <div class="card-bar"><div class="card-bar-fill" id="b-exist" style="width:0%"></div></div>
     </div>
     <div class="card c-blue">
       <div class="card-accent"></div>
       <div class="card-label">New Prospects</div>
       <div class="card-value" id="m-new">—</div>
-      <div class="card-sub" id="s-new">Potential new customers</div>
+      <div class="card-sub" id="s-new">— of total</div>
       <div class="card-bar"><div class="card-bar-fill" id="b-new" style="width:0%"></div></div>
     </div>
   </div>
 
-  <!-- Secondary Metrics -->
+  <!-- Secondary Mini Cards -->
   <div class="secondary">
     <div class="mini-card">
-      <div class="mini-label">⬆ Upgrade Interested</div>
+      <div class="mini-label">⬆ Upgrades</div>
       <div class="mini-value" id="m-upgrade">—</div>
-      <div class="mini-sub">Existing customers upgrading</div>
+      <div class="mini-sub">Pkg upgrade interest</div>
     </div>
     <div class="mini-card">
-      <div class="mini-label">✨ New Service Interested</div>
-      <div class="mini-value" id="m-newservice">—</div>
-      <div class="mini-sub">New customers signing up</div>
+      <div class="mini-label">✨ New Service</div>
+      <div class="mini-value" id="m-newserv">—</div>
+      <div class="mini-sub">New sign-up interest</div>
     </div>
     <div class="mini-card">
       <div class="mini-label">⏸ Not Interested</div>
-      <div class="mini-value" id="m-notinterested">—</div>
-      <div class="mini-sub">Not interested at this time</div>
+      <div class="mini-value" id="m-notint">—</div>
+      <div class="mini-sub">No interest</div>
     </div>
     <div class="mini-card">
-      <div class="mini-label">📊 Conversion Rate</div>
+      <div class="mini-label">📊 Conv. Rate</div>
       <div class="mini-value" id="m-rate">—</div>
-      <div class="mini-sub">Interested / Total leads</div>
+      <div class="mini-sub">Interested / Total</div>
     </div>
   </div>
 
-  <!-- Team Breakdown + Recent Interested Leads -->
+  <!-- Desktop: side-by-side panels -->
   <div class="panels">
 
     <!-- Team Performance -->
-    <div class="panel">
-      <div class="panel-header">
-        <div class="panel-title">👥 Team Performance</div>
-        <div class="panel-badge" id="team-count">0 teams</div>
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">👥 Team Performance</div>
+        <div class="section-badge" id="team-count">0 teams</div>
       </div>
-      <div id="team-container">
+
+      <!-- Mobile cards -->
+      <div class="team-cards" id="team-cards">
+        <div class="empty"><div class="ico">📊</div><p>Loading…</p></div>
+      </div>
+
+      <!-- Desktop table -->
+      <div class="team-table-wrap">
         <table class="team-table">
           <thead>
             <tr>
-              <th>Team</th>
-              <th>Total</th>
-              <th>Interested</th>
-              <th>Existing</th>
-              <th>Upgrades</th>
-              <th>New</th>
-              <th>Rate</th>
+              <th>Team</th><th>Total</th><th>Interested</th>
+              <th>Existing</th><th>Upgrades</th><th>New</th><th>Rate</th>
             </tr>
           </thead>
           <tbody id="team-body">
-            <tr><td colspan="7"><div class="empty-state"><div class="icon">📊</div><p>Loading team data…</p></div></td></tr>
+            <tr><td colspan="7"><div class="empty"><div class="ico">📊</div><p>Loading…</p></div></td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Recent Interested Leads -->
-    <div class="panel">
-      <div class="panel-header">
-        <div class="panel-title">🌟 Interested Leads</div>
-        <div class="panel-badge" id="leads-count">0</div>
+    <!-- Interested Leads -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">🌟 Interested Leads</div>
+        <div class="section-badge" id="leads-count">0</div>
       </div>
-      <div class="leads-list" id="leads-list">
-        <div class="empty-state"><div class="icon">📋</div><p>Loading leads…</p></div>
+      <div class="leads-scroll">
+        <div id="leads-list"><div class="empty"><div class="ico">📋</div><p>Loading…</p></div></div>
       </div>
     </div>
 
-  </div>
-</div>
+  </div><!-- /panels -->
+
+</div><!-- /content -->
 
 <!-- ══ SCRIPT ════════════════════════════════════════════════════════════════ -->
 <script>
-  // ─── CONFIG ───────────────────────────────────────────────────────────────
-  const SPREADSHEET_ID  = '1UDRajg0RIUsOTCpkHyQF4LIh5XAno0kXvMJaKVwol20';
-  const SHEET_NAME      = 'Form responses 1';
-  const TIMEZONE        = 'Asia/Colombo';
-  const REFRESH_SECONDS = 10;
+/* ─── CONFIG ─────────────────────────────────────────────────────────────── */
+const SPREADSHEET_ID  = '1UDRajg0RIUsOTCpkHyQF4LIh5XAno0kXvMJaKVwol20';
+const SHEET_NAME      = 'Form responses 1';
+const TIMEZONE        = 'Asia/Colombo';
+const REFRESH_SECONDS = 10;
 
-  // Column indices (0-based)
-  const COL = {
-    TIMESTAMP:           0,
-    REGION:              1,
-    IS_CUSTOMER:         2,
-    UPGRADE_INTEREST:    3,
-    NEW_SERVICE_INTEREST:4,
-    NAME:                5,
-    NEAREST_TOWN:        6,
-    CONTACT:             7,
-    TEAM_NUMBER:         8,
-    REMARKS:             9,
-  };
+const COL = {
+  TIMESTAMP: 0, REGION: 1, IS_CUSTOMER: 2,
+  UPGRADE_INTEREST: 3, NEW_SERVICE_INTEREST: 4,
+  NAME: 5, NEAREST_TOWN: 6, CONTACT: 7, TEAM_NUMBER: 8, REMARKS: 9
+};
 
-  // ─── STATE ────────────────────────────────────────────────────────────────
-  let countdown = REFRESH_SECONDS;
-  const CIRCUMFERENCE = 2 * Math.PI * 14; // r=14
+/* ─── STATE ──────────────────────────────────────────────────────────────── */
+let allRows        = [];   // all parsed rows from sheet
+let selectedRegion = null; // currently selected region string (null = today)
+let countdown      = REFRESH_SECONDS;
+const CIRCUM       = 2 * Math.PI * 14;
 
-  // ─── UTILITIES ────────────────────────────────────────────────────────────
-  function todayStr() {
-    return new Date().toLocaleDateString('sv-SE', { timeZone: TIMEZONE }); // yyyy-mm-dd
-  }
+/* ─── UTILS ──────────────────────────────────────────────────────────────── */
+function todayStr() {
+  return new Date().toLocaleDateString('sv-SE', { timeZone: TIMEZONE });
+}
+function toDateStr(d) {
+  return d instanceof Date && !isNaN(d)
+    ? d.toLocaleDateString('sv-SE', { timeZone: TIMEZONE })
+    : null;
+}
+function fmtTime(d) {
+  return d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit', timeZone: TIMEZONE });
+}
+function fmtDateLong(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { weekday:'long', day:'2-digit', month:'long', year:'numeric' });
+}
+function fmtDateShort(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month:'short', day:'numeric' });
+}
+function normalizeYN(v) {
+  if (!v) return 'Unknown';
+  const s = v.toString().toLowerCase();
+  if (s.includes('yes') || s === 'y') return 'Yes';
+  if (s.includes('no')  || s === 'n') return 'No';
+  return 'Unknown';
+}
+function cleanTeam(v) {
+  if (!v) return 'Unknown';
+  let s = v.toString().trim();
+  s = s.replace(/Team\s*N0\s*/i, 'Team No ').replace(/Team\s*No\s*/i, 'Team No ');
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+function cleanTown(v) {
+  if (!v) return '—';
+  return v.toString().trim().split(' ')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+}
+function pct(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.style.width = Math.min(100, Math.max(0, val)).toFixed(1) + '%';
+}
 
-  function formatTime(d) {
-    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: TIMEZONE });
-  }
+/* ─── FETCH ──────────────────────────────────────────────────────────────── */
+async function fetchSheetData() {
+  const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&_=${Date.now()}`;
+  const res  = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const text = await res.text();
+  const json = JSON.parse(text.replace(/^[^{]*/, '').replace(/\);?\s*$/, ''));
+  if (!json.table || !json.table.rows) return [];
 
-  function formatDateLabel(d) {
-    return d.toLocaleDateString('en-US', { weekday:'long', day:'2-digit', month:'long', year:'numeric', timeZone: TIMEZONE });
-  }
-
-  function normalizeYesNo(v) {
-    if (!v) return 'Unknown';
-    const s = v.toString().toLowerCase();
-    if (s.includes('yes') || s === 'y') return 'Yes';
-    if (s.includes('no')  || s === 'n') return 'No';
-    return 'Unknown';
-  }
-
-  function cleanTeam(v) {
-    if (!v) return 'Unknown';
-    let s = v.toString().trim();
-    s = s.replace(/Team\s*N0\s*/i, 'Team No ');
-    s = s.replace(/Team\s*No\s*/i, 'Team No ');
-    return s.charAt(0).toUpperCase() + s.slice(1);
-  }
-
-  function cleanTown(v) {
-    if (!v) return 'Not specified';
-    return v.toString().trim().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-  }
-
-  // ─── LOCATION DETECTION ───────────────────────────────────────────────────
-  function detectLocation(rows) {
-    const counts = {};
-    rows.forEach(r => {
-      if (r.region && r.region !== 'Not specified') {
-        counts[r.region] = (counts[r.region] || 0) + 1;
+  const cols = json.table.cols;
+  return json.table.rows.map(row =>
+    row.c.map((cell, i) => {
+      if (!cell) return '';
+      if (cols[i] && cols[i].type === 'datetime' && cell.v) {
+        const m = cell.v.match(/Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/);
+        if (m) return new Date(+m[1], +m[2], +m[3], +m[4], +m[5], +m[6]);
       }
-    });
-    if (!Object.keys(counts).length) return 'Various Locations';
-    let max = 0;
-    let top = 'Various Locations';
-    for (const r in counts) { if (counts[r] > max) { max = counts[r]; top = r; } }
-    const topRegions = Object.keys(counts).filter(r => counts[r] >= max * 0.7);
-    if (topRegions.length > 2) return `Multiple Regions (${topRegions.slice(0,2).join(', ')}+)`;
-    if (topRegions.length === 2) return topRegions.join(' & ');
-    return top;
+      return cell.v !== undefined ? cell.v : (cell.f || '');
+    })
+  );
+}
+
+/* ─── PARSE ROW ──────────────────────────────────────────────────────────── */
+function parseRow(row) {
+  const ts = row[COL.TIMESTAMP];
+  let timestamp;
+  if (ts instanceof Date)           timestamp = ts;
+  else if (typeof ts === 'string' && ts) timestamp = new Date(ts);
+  else return null;
+  if (isNaN(timestamp.getTime())) return null;
+
+  return {
+    timestamp,
+    dateStr:            toDateStr(timestamp),
+    region:             (row[COL.REGION] || '').toString().trim() || 'Not specified',
+    team:               cleanTeam(row[COL.TEAM_NUMBER]),
+    town:               cleanTown(row[COL.NEAREST_TOWN]),
+    isCustomer:         normalizeYN(row[COL.IS_CUSTOMER]),
+    upgradeInterest:    normalizeYN(row[COL.UPGRADE_INTEREST]),
+    newServiceInterest: normalizeYN(row[COL.NEW_SERVICE_INTEREST]),
+    name:    (row[COL.NAME]    || '').toString().trim() || 'Not provided',
+    contact: (row[COL.CONTACT] || '').toString().trim() || 'Not provided',
+    remarks: (row[COL.REMARKS] || '').toString().trim(),
+  };
+}
+
+/* ─── BUILD REGION→DATE MAP ──────────────────────────────────────────────── */
+// Returns array of { region, dateStr, count } sorted newest first
+function buildRegionList(rows) {
+  const map = {}; // key = "region|||dateStr"
+  rows.forEach(r => {
+    if (!r || !r.dateStr || r.region === 'Not specified') return;
+    const key = r.region + '|||' + r.dateStr;
+    if (!map[key]) map[key] = { region: r.region, dateStr: r.dateStr, count: 0 };
+    map[key].count++;
+  });
+  return Object.values(map).sort((a, b) => b.dateStr.localeCompare(a.dateStr));
+}
+
+/* ─── RENDER CHIPS ───────────────────────────────────────────────────────── */
+function renderChips(regionList) {
+  const today  = todayStr();
+  const container = document.getElementById('region-chips');
+
+  // Determine default selection: prefer today's region, else newest
+  if (selectedRegion === null) {
+    const todayEntry = regionList.find(e => e.dateStr === today);
+    selectedRegion = todayEntry ? todayEntry.region + '|||' + todayEntry.dateStr
+                                : (regionList[0] ? regionList[0].region + '|||' + regionList[0].dateStr : null);
   }
 
-  // ─── FETCH DATA ───────────────────────────────────────────────────────────
-  async function fetchSheetData() {
-    const url = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}&_=${Date.now()}`;
-    const res  = await fetch(url);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
+  container.innerHTML = regionList.map(entry => {
+    const key    = entry.region + '|||' + entry.dateStr;
+    const active = key === selectedRegion ? 'active' : '';
+    const isToday = entry.dateStr === today;
+    return `
+      <div class="region-chip ${active}" data-key="${key}" onclick="selectRegion('${key}')">
+        ${isToday ? '<span class="chip-today-badge">TODAY</span>' : ''}
+        <div class="chip-label">${entry.region}</div>
+        <div class="chip-date">${fmtDateShort(entry.dateStr)}</div>
+        <div class="chip-count">${entry.count} leads</div>
+      </div>`;
+  }).join('');
 
-    // Strip the callback wrapper: /*O_o*/ google.visualization.Query.setResponse({...});
-    const jsonStr = text.replace(/^[^{]*/, '').replace(/\);?\s*$/, '');
-    const json    = JSON.parse(jsonStr);
+  // Scroll active chip into view
+  const activeEl = container.querySelector('.active');
+  if (activeEl) activeEl.scrollIntoView({ inline:'center', behavior:'smooth' });
+}
 
-    if (!json.table || !json.table.rows) return [];
+function selectRegion(key) {
+  selectedRegion = key;
+  renderChips(buildRegionList(allRows)); // re-render chips
+  renderDashboard();
+}
 
-    const cols = json.table.cols;
-    return json.table.rows.map(row => {
-      return row.c.map((cell, i) => {
-        if (!cell) return '';
-        // Dates come as Date(yyyy,m,d,h,min,s) — gviz format
-        if (cols[i] && cols[i].type === 'datetime' && cell.v) {
-          const m = cell.v.match(/Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/);
-          if (m) return new Date(+m[1], +m[2], +m[3], +m[4], +m[5], +m[6]);
-        }
-        return cell.v !== undefined ? cell.v : (cell.f || '');
-      });
-    });
+/* ─── RENDER DASHBOARD ───────────────────────────────────────────────────── */
+function renderDashboard() {
+  if (!selectedRegion) { showNoData(); return; }
+
+  const [region, dateStr] = selectedRegion.split('|||');
+  const rows = allRows.filter(r => r && r.region === region && r.dateStr === dateStr);
+
+  if (!rows.length) { showNoData(); return; }
+  document.getElementById('no-data-banner').style.display = 'none';
+
+  // Counts
+  let existing=0, nonCust=0, upgradeInt=0, newServInt=0, totalInt=0, notInt=0;
+  const teams = {};
+
+  rows.forEach(r => {
+    if (r.isCustomer === 'Yes') existing++;
+    else if (r.isCustomer === 'No') nonCust++;
+
+    let interested = false;
+    if (r.isCustomer==='Yes' && r.upgradeInterest==='Yes')    { upgradeInt++; interested=true; }
+    if (r.isCustomer==='No'  && r.newServiceInterest==='Yes') { newServInt++; interested=true; }
+    if (interested) totalInt++; else notInt++;
+
+    if (!teams[r.team]) teams[r.team] = {count:0,interested:0,existing:0,upgrade:0,newService:0};
+    teams[r.team].count++;
+    if (interested)              teams[r.team].interested++;
+    if (r.isCustomer==='Yes')    teams[r.team].existing++;
+    if (r.upgradeInterest==='Yes')    teams[r.team].upgrade++;
+    if (r.newServiceInterest==='Yes') teams[r.team].newService++;
+  });
+
+  const total    = rows.length;
+  const convRate = total > 0 ? ((totalInt / total) * 100).toFixed(1) : '0.0';
+
+  // Banner
+  document.getElementById('loc-date').textContent  = fmtDateLong(dateStr);
+  document.getElementById('loc-place').textContent = '📍 ' + region;
+  document.getElementById('last-time').textContent = fmtTime(new Date());
+
+  // Primary cards
+  animNum('m-total',     total);
+  animNum('m-interested', totalInt);
+  animNum('m-existing',   existing);
+  animNum('m-new',        nonCust);
+
+  pct('b-int',  total>0?(totalInt/total*100):0);
+  pct('b-exist',total>0?(existing/total*100):0);
+  pct('b-new',  total>0?(nonCust/total*100):0);
+
+  set('s-conv',  `${convRate}% conversion`);
+  set('s-exist', `${total>0?((existing/total)*100).toFixed(1):'0.0'}% of total`);
+  set('s-new',   `${total>0?((nonCust/total)*100).toFixed(1):'0.0'}% of total`);
+
+  // Mini cards
+  set('m-upgrade',  upgradeInt);
+  set('m-newserv',  newServInt);
+  set('m-notint',   notInt);
+  set('m-rate',     convRate + '%');
+
+  // Teams
+  const teamNames = Object.keys(teams).sort();
+  set('team-count', `${teamNames.length} team${teamNames.length!==1?'s':''}`);
+
+  if (!teamNames.length) {
+    document.getElementById('team-cards').innerHTML = `<div class="empty"><div class="ico">👥</div><p>No team data yet</p></div>`;
+    document.getElementById('team-body').innerHTML  = `<tr><td colspan="7"><div class="empty"><div class="ico">👥</div><p>No team data yet</p></div></td></tr>`;
+  } else {
+    // Mobile cards
+    document.getElementById('team-cards').innerHTML = teamNames.map(name => {
+      const t = teams[name];
+      const rate = ((t.interested/t.count)*100).toFixed(1);
+      return `<div class="team-card">
+        <div class="team-card-top">
+          <div class="team-card-name">${name}</div>
+          <span class="rate-pill">${rate}%</span>
+        </div>
+        <div class="team-card-stats">
+          <div class="team-stat"><div class="team-stat-val">${t.count}</div><div class="team-stat-lbl">Total</div></div>
+          <div class="team-stat"><div class="team-stat-val">${t.interested}</div><div class="team-stat-lbl">Interest</div></div>
+          <div class="team-stat"><div class="team-stat-val">${t.existing}</div><div class="team-stat-lbl">Existing</div></div>
+          <div class="team-stat"><div class="team-stat-val">${t.upgrade}</div><div class="team-stat-lbl">Upgrade</div></div>
+          <div class="team-stat"><div class="team-stat-val">${t.newService}</div><div class="team-stat-lbl">New</div></div>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Desktop table
+    document.getElementById('team-body').innerHTML = teamNames.map(name => {
+      const t = teams[name];
+      const rate = ((t.interested/t.count)*100).toFixed(1);
+      return `<tr>
+        <td>${name}</td><td>${t.count}</td><td>${t.interested}</td>
+        <td>${t.existing}</td><td>${t.upgrade}</td><td>${t.newService}</td>
+        <td><span class="rate-pill">${rate}%</span></td>
+      </tr>`;
+    }).join('');
   }
 
-  // ─── PARSE ROW ────────────────────────────────────────────────────────────
-  function parseRow(row) {
-    const ts = row[COL.TIMESTAMP];
-    let timestamp;
-    if (ts instanceof Date) {
-      timestamp = ts;
-    } else if (typeof ts === 'string' && ts) {
-      timestamp = new Date(ts);
-    } else {
-      return null;
-    }
-    if (isNaN(timestamp.getTime())) return null;
+  // Leads list
+  const interested = rows.filter(r =>
+    (r.isCustomer==='Yes' && r.upgradeInterest==='Yes') ||
+    (r.isCustomer==='No'  && r.newServiceInterest==='Yes')
+  ).sort((a,b) => b.timestamp - a.timestamp).slice(0, 40);
 
-    const rowDateStr = timestamp.toLocaleDateString('sv-SE', { timeZone: TIMEZONE });
-
-    return {
-      timestamp,
-      dateStr:            rowDateStr,
-      region:             (row[COL.REGION] || '').toString().trim() || 'Not specified',
-      team:               cleanTeam(row[COL.TEAM_NUMBER]),
-      town:               cleanTown(row[COL.NEAREST_TOWN]),
-      isCustomer:         normalizeYesNo(row[COL.IS_CUSTOMER]),
-      upgradeInterest:    normalizeYesNo(row[COL.UPGRADE_INTEREST]),
-      newServiceInterest: normalizeYesNo(row[COL.NEW_SERVICE_INTEREST]),
-      name:               (row[COL.NAME]    || '').toString().trim() || 'Not provided',
-      contact:            (row[COL.CONTACT] || '').toString().trim() || 'Not provided',
-      remarks:            (row[COL.REMARKS] || '').toString().trim(),
-    };
-  }
-
-  // ─── RENDER ───────────────────────────────────────────────────────────────
-  function render(rows) {
-    const today = todayStr();
-    const todayRows = rows.map(parseRow).filter(r => r && r.dateStr === today);
-
-    // --- counts
-    let existing = 0, nonCust = 0, upgradeInt = 0, newServInt = 0, totalInt = 0, notInt = 0;
-    const teams = {};
-
-    todayRows.forEach(r => {
-      if (r.isCustomer === 'Yes') existing++;
-      else if (r.isCustomer === 'No') nonCust++;
-
-      let interested = false;
-      if (r.isCustomer === 'Yes' && r.upgradeInterest    === 'Yes') { upgradeInt++; interested = true; }
-      if (r.isCustomer === 'No'  && r.newServiceInterest === 'Yes') { newServInt++; interested = true; }
-      if (interested) totalInt++; else notInt++;
-
-      if (!teams[r.team]) teams[r.team] = { count:0, interested:0, existing:0, upgrade:0, newService:0 };
-      teams[r.team].count++;
-      if (interested)          teams[r.team].interested++;
-      if (r.isCustomer==='Yes') teams[r.team].existing++;
-      if (r.upgradeInterest==='Yes')    teams[r.team].upgrade++;
-      if (r.newServiceInterest==='Yes') teams[r.team].newService++;
-    });
-
-    const total = todayRows.length;
-    const convRate = total > 0 ? ((totalInt / total) * 100).toFixed(1) : '0.0';
-    const location = detectLocation(todayRows);
-
-    // --- header
-    document.getElementById('today-label').textContent = formatDateLabel(new Date());
-    document.getElementById('location-label').textContent = location;
-    document.getElementById('last-time').textContent = formatTime(new Date());
-
-    // --- primary metrics
-    animateCount('m-total', total);
-    animateCount('m-interested', totalInt);
-    animateCount('m-existing', existing);
-    animateCount('m-new', nonCust);
-
-    pct('b-interested', total > 0 ? (totalInt/total*100) : 0);
-    pct('b-existing',   total > 0 ? (existing/total*100) : 0);
-    pct('b-new',        total > 0 ? (nonCust/total*100)  : 0);
-
-    document.getElementById('s-conversion').textContent = `${convRate}% conversion rate`;
-    document.getElementById('s-existing').textContent   = `${total > 0 ? ((existing/total)*100).toFixed(1) : '0.0'}% of total`;
-    document.getElementById('s-new').textContent        = `${total > 0 ? ((nonCust/total)*100).toFixed(1) : '0.0'}% of total`;
-
-    // --- secondary
-    document.getElementById('m-upgrade').textContent      = upgradeInt;
-    document.getElementById('m-newservice').textContent   = newServInt;
-    document.getElementById('m-notinterested').textContent= notInt;
-    document.getElementById('m-rate').textContent         = convRate + '%';
-
-    // --- team table
-    const teamNames = Object.keys(teams).sort();
-    document.getElementById('team-count').textContent = `${teamNames.length} team${teamNames.length !== 1 ? 's' : ''}`;
-    const tbody = document.getElementById('team-body');
-    if (!teamNames.length) {
-      tbody.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="icon">👥</div><p>No team data yet</p></div></td></tr>`;
-    } else {
-      tbody.innerHTML = teamNames.map(name => {
-        const t = teams[name];
-        const rate = ((t.interested / t.count) * 100).toFixed(1);
-        return `<tr>
-          <td>${name}</td>
-          <td>${t.count}</td>
-          <td>${t.interested}</td>
-          <td>${t.existing}</td>
-          <td>${t.upgrade}</td>
-          <td>${t.newService}</td>
-          <td><span class="rate-pill">${rate}%</span></td>
-        </tr>`;
-      }).join('');
-    }
-
-    // --- interested leads list (newest first)
-    const interested = todayRows.filter(r =>
-      (r.isCustomer === 'Yes' && r.upgradeInterest === 'Yes') ||
-      (r.isCustomer === 'No'  && r.newServiceInterest === 'Yes')
-    ).sort((a, b) => b.timestamp - a.timestamp).slice(0, 30);
-
-    document.getElementById('leads-count').textContent = interested.length;
-    const leadsList = document.getElementById('leads-list');
-    if (!interested.length) {
-      leadsList.innerHTML = `<div class="empty-state"><div class="icon">📋</div><p>No interested leads yet today</p></div>`;
-    } else {
-      leadsList.innerHTML = interested.map(r => {
-        const isUpgrade = r.isCustomer === 'Yes';
+  set('leads-count', interested.length);
+  document.getElementById('leads-list').innerHTML = interested.length
+    ? interested.map(r => {
+        const up = r.isCustomer === 'Yes';
         return `<div class="lead-item">
           <div class="lead-info">
             <div class="lead-name">${r.name}</div>
-            <div class="lead-meta">📞 ${r.contact} &nbsp;·&nbsp; 📍 ${r.town} &nbsp;·&nbsp; ${r.team}</div>
+            <div class="lead-meta">📞 ${r.contact} · 📍 ${r.town} · ${r.team}</div>
           </div>
-          <span class="lead-tag ${isUpgrade ? 'tag-upgrade' : 'tag-new'}">${isUpgrade ? '⬆ Upgrade' : '✨ New'}</span>
+          <span class="lead-tag ${up?'tag-upgrade':'tag-new'}">${up?'⬆ Upgrade':'✨ New'}</span>
         </div>`;
-      }).join('');
-    }
+      }).join('')
+    : `<div class="empty"><div class="ico">📋</div><p>No interested leads yet</p></div>`;
 
-    // --- clear error
-    setError(null);
+  setError(null);
+}
+
+function showNoData() {
+  document.getElementById('no-data-banner').style.display = 'block';
+  ['m-total','m-interested','m-existing','m-new','m-upgrade','m-newserv','m-notint','m-rate'].forEach(id => set(id, '—'));
+  set('leads-count', 0);
+  document.getElementById('leads-list').innerHTML = `<div class="empty"><div class="ico">📋</div><p>No data available</p></div>`;
+  document.getElementById('team-cards').innerHTML = `<div class="empty"><div class="ico">👥</div><p>No data</p></div>`;
+  document.getElementById('team-body').innerHTML  = `<tr><td colspan="7"><div class="empty"><p>No data</p></div></td></tr>`;
+}
+
+/* ─── HELPERS ────────────────────────────────────────────────────────────── */
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = val;
+}
+
+function animNum(id, target) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const cur = parseInt(el.textContent, 10) || 0;
+  if (cur === target) { el.textContent = target; return; }
+  const step  = target > cur ? 1 : -1;
+  const diff  = Math.abs(target - cur);
+  const delay = diff > 10 ? 18 : 55;
+  el.classList.add('updating');
+  let v = cur;
+  const t = setInterval(() => {
+    v += step;
+    el.textContent = v;
+    if (v === target) { clearInterval(t); el.classList.remove('updating'); }
+  }, delay);
+}
+
+function setError(msg) {
+  const b = document.getElementById('error-banner');
+  b.style.display = msg ? 'block' : 'none';
+  if (msg) b.textContent = '⚠ ' + msg;
+}
+
+/* ─── REFRESH ────────────────────────────────────────────────────────────── */
+async function refresh() {
+  try {
+    const raw  = await fetchSheetData();
+    allRows    = raw.map(parseRow).filter(Boolean);
+    const list = buildRegionList(allRows);
+    renderChips(list);
+    renderDashboard();
+  } catch (err) {
+    console.error(err);
+    setError('Cannot load sheet. Make sure the spreadsheet is shared as "Anyone with the link can view". ' + err.message);
+    set('last-time', 'Failed – retrying…');
   }
+}
 
-  function pct(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.style.width = Math.min(100, Math.max(0, value)).toFixed(1) + '%';
-  }
+/* ─── TICK ───────────────────────────────────────────────────────────────── */
+function tick() {
+  countdown--;
+  if (countdown <= 0) { countdown = REFRESH_SECONDS; refresh(); }
+  const ring   = document.getElementById('ring');
+  const offset = CIRCUM * (1 - countdown / REFRESH_SECONDS);
+  ring.style.strokeDashoffset = CIRCUM - offset;
+  set('countdown-label', countdown + 's');
+}
 
-  function animateCount(id, target) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const current = parseInt(el.textContent, 10) || 0;
-    if (current === target) { el.textContent = target; return; }
-    const step = target > current ? 1 : -1;
-    const diff = Math.abs(target - current);
-    const delay = diff > 10 ? 20 : 60;
-    el.classList.add('updating');
-    let v = current;
-    const timer = setInterval(() => {
-      v += step;
-      el.textContent = v;
-      if (v === target) { clearInterval(timer); el.classList.remove('updating'); }
-    }, delay);
-  }
-
-  function setError(msg) {
-    const banner = document.getElementById('error-banner');
-    const inline = document.getElementById('error-inline');
-    if (msg) {
-      banner.style.display = 'block';
-      banner.textContent   = '⚠ ' + msg;
-      inline.style.display = 'block';
-    } else {
-      banner.style.display = 'none';
-      inline.style.display = 'none';
-    }
-  }
-
-  // ─── REFRESH LOOP ─────────────────────────────────────────────────────────
-  async function refresh() {
-    try {
-      const rows = await fetchSheetData();
-      render(rows);
-    } catch (err) {
-      console.error(err);
-      setError('Could not load sheet data. Make sure the spreadsheet is shared as "Anyone with the link can view". Error: ' + err.message);
-      document.getElementById('last-time').textContent = 'Failed – retrying…';
-    }
-  }
-
-  // Countdown ring
-  function tickRing() {
-    countdown--;
-    if (countdown <= 0) {
-      countdown = REFRESH_SECONDS;
-      refresh();
-    }
-    const ring = document.getElementById('ring');
-    const offset = CIRCUMFERENCE * (1 - countdown / REFRESH_SECONDS);
-    ring.style.strokeDashoffset = CIRCUMFERENCE - offset;
-  }
-
-  // Initial load
-  refresh();
-
-  // Tick every second
-  setInterval(tickRing, 1000);
+refresh();
+setInterval(tick, 1000);
 </script>
 </body>
 </html>
